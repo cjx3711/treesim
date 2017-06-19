@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<title>
-			Herd Immunity
+			Tree Simulator
 		</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style>
@@ -12,7 +12,7 @@
 				border: solid;
 				width: 100%;
 				height: 75%;
-				background-color: #E0ECFC;
+				background-color: #FFFFFF;
 				margin-bottom: 10px;
 			}
 
@@ -27,42 +27,14 @@
 	<body>
 		<canvas id="main"></canvas>
 
-		<button onclick="startLowVaccination();">Low</button>
-		<button onclick="startMedVaccination();">Medium</button>
-		<button onclick="startHighVaccination();">High</button>
-		<button onclick="stopSimulation();">Stop</button>
+		<button onclick="startSimulation();">Start</button>
 		<br/>
-		<div><span class="title">Total:</span> <span id="totalText">-</span></div>
-		<div><span class="title">Immune:</span> <span id="vaccinatedText">-</span></div>
-		<div><span class="title">Healthy:</span> <span id="healthyText">-</span></div>
-		<div><span class="title">Sick:</span> <span id="sickText">-</span></div>
-		<div><span class="title">Dead:</span> <span id="deadText">-</span></div>
 
 		<script>
 		var x = 0;
 
 		var canvas = document.getElementById("main");
 		var context = canvas.getContext("2d");
-
-		var transmissionRateVac = 0.01;
-		var transmissionRate = 0.5;
-		var recoveryRateVac = 1.5;
-		var recoveryRate = 1;
-
-		var percHealthy = 0.9;
-		var percVaccinated = 0.0;
-
-		var totalHumans = 0;
-		var healthyHumans = 0;
-		var sickHumans = 0;
-		var deadHumans = 0;
-
-		var radius = 10;
-
-		var totalText = document.getElementById("totalText");
-		var healthyText = document.getElementById("healthyText");
-		var sickText = document.getElementById("sickText");
-		var deadText = document.getElementById("deadText");
 
 		window.onresize = function(event) {
 		    canvas.width = window.innerWidth;
@@ -73,157 +45,34 @@
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight * 0.8;
 
-		function generateHuman () {
-			var immunity = Math.random() * 5 + 10;
+		function generateNode (parent) {
 			return {
 				dead : false,
-				healthy: Math.random() < percHealthy,
-				vaccinated: Math.random() < percVaccinated,
+        parent: parent,
+        size: Math.random() * 10 + 10,
 				x: Math.random() * canvas.width,
-				y: Math.random() * canvas.height,
-				vX: (Math.random() < 0.5 ? -1 : 1) * (Math.random() *  120 + 60),
-				vY: (Math.random() < 0.5 ? -1 : 1) * (Math.random() *  120 + 60),
-				sickness: Math.random() < 0.8 ? 0: 5,
-				totalSicknessTime: 0,
-				immunity: immunity		//10 - 15 second immunity
+				y: Math.random() * canvas.height
 			}
 		}
 
-		function updateHuman ( human, delta ) {
-			if ( human.dead ) return;
-			human.x += human.vX * delta;
-			human.y += human.vY * delta;
-
-			if ( human.x < radius) {
-				human.vX *= -1;
-				human.x = radius;
-			} else if ( human.x > canvas.width - 5 ) {
-				human.vX *= -1;
-				human.x = canvas.width - 5;
-			}
-			if ( human.y < radius) {
-				human.vY *= -1;
-				human.y = radius;
-			} else if ( human.y > canvas.height - 5 ) {
-				human.vY *= -1;
-				human.y = canvas.height - 5;
-			}
-
-			if ( human.sickness <= 0 ) {
-				if ( !human.healthy ) {
-					/*if ( !human.vaccinated ) {
-						human.vaccinated = Math.random() > 0.3 ? true : false;
-					}*/
-					human.healthy = true;
-				}
-				if ( human.totalSicknessTime > 0 ) {
-					human.totalSicknessTime -= (human.vaccinated?recoveryRateVac:recoveryRate) * delta * 0.5;
-				}
-			} else {
-				human.sickness -= (human.vaccinated?recoveryRateVac:recoveryRate) * delta;
-				human.healthy = false;
-				human.totalSicknessTime += delta;
-				if ( human.totalSicknessTime > human.immunity * (human.vaccinated ? 1.3 : 1) ) {
-					human.dead = true;
-				}
-			}
+		function updateNode ( human, delta ) {
+			
 		}
 
-		function detectCollision ( human1, human2, delta) {
-			if ( human1.dead || human2.dead ) return false;
-			var xd = human1.x - human2.x;
-		    var yd = human1.y - human2.y;
-
-		    var distSqr = (xd * xd) + (yd * yd);
-
-		    if (distSqr <= (radius*2)*(radius*2)) { //Collision
-		       	//Resolve collision
-		       	resolveCollision( human1, human2, delta );
-		       	resolveHealth ( human1, human2 );
-		       	resolveHealth ( human2, human1 );
-		    }
-		}
-
-		function resolveCollision ( human1, human2, delta ) {
-			newVelX1 = human2.vX;
-			newVelY1 = human2.vY;
-			newVelX2 = human1.vX;
-			newVelY2 = human1.vY;
-
-			human1.vX = newVelX1;
-			human1.vY = newVelY1;
-			human2.vX = newVelX2;
-			human2.vY = newVelY2;
-
-			updateHuman(human1, delta);
-			updateHuman(human2, delta);
-		}
-
-		function resolveHealth ( human1, human2 ) {
-			if ( !human1.healthy ) {
-				var chanceOfSickness = human2.vaccinated?transmissionRateVac:transmissionRate;
-				if ( Math.random() < chanceOfSickness ) {
-					human2.healthy = false;
-					human2.sickness += Math.random() * 2.5 + 2.5;
-				}
-			}
-		}
-
-
-
-		function drawHuman (context, human ) {
+		function drawNode (context, node ) {
 			context.beginPath();
-
-			if ( human.dead ) {
-				context.fillStyle="#001121";
-			} else if ( !human.healthy ) {
-				context.fillStyle="#9E2197";
-			} else if ( human.vaccinated ) {
-				context.fillStyle="#005BA1";
-			} else {
-				context.fillStyle="#63BB41";
-			}
-			context.arc(human.x, human.y, radius, 0, Math.PI*2, true); 
+      context.fillStyle="#001121";
+			context.arc(node.x, node.y, node.size, 0, Math.PI*2, true); 
 			context.fill();
 			context.closePath();
+      
+      if ( node.parent != null ) {
+        context.beginPath();
+        context.moveTo(node.x,node.y);
+        context.lineTo(node.parent.x,node.parent.y);
+        context.stroke();
+      }
 		}
-
-		function calculateStats() {
-			totalHumans = 0;
-			healthyHumans = 0;
-			sickHumans = 0;
-			deadHumans = 0;
-			vaccinatedHumans = 0;
-			for ( i in people ) {
-				person = people[i];
-				totalHumans++;
-				if ( person.dead ) {
-					deadHumans++;
-				} else {
-					if ( person.healthy ) {
-						healthyHumans++;
-					} else {
-						sickHumans++;
-					}
-				}
-				if ( person.vaccinated ) {
-					vaccinatedHumans++;
-				}
-			}
-
-			if ( sickHumans == 0 || deadHumans == totalHumans ) {
-				App.stop();
-			}
-
-
-
-			totalText.innerHTML = totalHumans + "";
-			vaccinatedText.innerHTML = vaccinatedHumans + " (" + Math.round(vaccinatedHumans/totalHumans*100)+ "%)";
-			healthyText.innerHTML = healthyHumans + " (" + Math.round(healthyHumans/totalHumans*100)+ "%)";
-			sickText.innerHTML = sickHumans + " (" + Math.round(sickHumans/totalHumans*100)+ "%)";
-			deadText.innerHTML = deadHumans + " (" + Math.round(deadHumans/totalHumans*100)+ "%)";
-		}
-
 	
 		var date = new Date();
 		var App = {
@@ -260,21 +109,6 @@
 				App._delta = (App._currTime - App._prevTime)/1000;
 				App._actualFPS = 1 / App._delta;
 
-				for ( i in people ) {
-					person = people[i];
-					updateHuman(person, App._delta);
-				}
-
-				for ( i in people ) {
-					person1 = people[i];
-					for ( j in people ) {
-						if ( i == j ) continue;
-						person2 = people[j];
-						detectCollision(person1, person2, App._delta);
-					}
-				}
-				calculateStats();
-
 				App._prevTime = App._currTime;
 			},
 
@@ -284,96 +118,39 @@
 				context.clearRect(0,0,width,height);
 
 				
-				
-				for ( i in people ) {
-					person = people[i];
-					if ( person.dead )
-						drawHuman ( context, person );
-				}
-				for ( i in people ) {
-					person = people[i];
-					if ( !person.dead)
-						drawHuman ( context, person );
+				for ( i in nodes ) {
+					node = nodes[i];
+					drawNode ( context, node );
 				}
 
 				context.globalAlpha=0.6;
-				context.fillStyle="#E0ECFC";
-				context.fillRect(0,0, 120, 160);
+				context.fillStyle="#DDDDDD";
+				context.fillRect(0,0, 60, 15);
 				context.globalAlpha=1;
 				context.fillStyle="#000000";
 				context.font="10px Arial";
 				context.fillText ( "fps: " + Math.round( App._actualFPS ) ,10 , 10);
 				context.font="15px Arial";
-				
-				for ( i in legend ) {
-					person = legend[i];
-					drawHuman ( context, person);
-					context.fillText( person.text, person.x + radius + 5, person.y + 3)
-				}
-
-
-
 			}
 		};
 
-		var people = [];
-
-		legendOffsetX = 20;
-		legendOffsetY = 40;
-		var legend = [{
-			x: legendOffsetX,
-			y: legendOffsetY,
-			dead : false,
-			healthy: true,
-			vaccinated: false,
-			text: "Healthy"
-		},
-		{
-			x: legendOffsetX,
-			y: legendOffsetY + (radius * 2 + 5),
-			dead : false,
-			healthy: true,
-			vaccinated: true,
-			text: "Immune"
-		},
-		{
-			x: legendOffsetX,
-			y: legendOffsetY + (radius * 2 + 5) * 2,
-			dead : false,
-			healthy: false,
-			vaccinated: false,
-			text: "Sick"
-		},
-		{
-			x: legendOffsetX,
-			y: legendOffsetY + (radius * 2 + 5) * 3,
-			dead : true,
-			healthy: false,
-			vaccinated: false,
-			text: "Dead"
-		}
-		]
-
-		function startLowVaccination() {
-			percVaccinated = 0.1;
-			startSimulation();
-		}
-		function startMedVaccination() {
-			percVaccinated = 0.5;
-			startSimulation();
-		}
-		function startHighVaccination() {
-			percVaccinated = 0.9;
-			startSimulation();
-		}
+		var nodes = [];
 
 		function startSimulation() {
-			var total = canvas.height * canvas.width / 9300;
-			//if ( total > 200 ) total = 200;
-			percHealthy = 0.9;
-	 		people = [];
-			for ( i = 0; i < total; i++ ) {
-				people.push( generateHuman() );
+	 		nodes.length = 0;
+      var root = generateNode(null);
+      root.x = canvas.width / 2 - (canvas.width / 6) + Math.random() * (canvas.width / 3);
+      root.y = canvas.height / 2 - (canvas.height / 6) + Math.random() * (canvas.height / 3);
+      
+      root.size += Math.random() * 5 + 4;
+      nodes.push(root);
+			for ( i = 0; i < 3; i++ ) {
+        var parentIndex = Math.floor(Math.random() * nodes.length);
+        var parent = nodes[parentIndex];
+        var node = generateNode(parent);
+        node.x = parent.x + (Math.random() * 100 + 30) * (Math.random() < 0.5 ? -1 : 1);
+        node.y = parent.y + (Math.random() * 100 + 30) * (Math.random() < 0.5 ? -1 : 1);
+				nodes.push(node);
 			}
 			App.start();
 		}
