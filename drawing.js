@@ -5,7 +5,7 @@ function drawBlob(context, blob) {
   
   context.beginPath();
   context.fillStyle = "#BAAC24";
-  context.arc(x, y, blob.value * 0.5, 0, Math.PI*2, true); 
+  context.arc(x, y, Math.min(6,blob.value), 0, Math.PI*2, true); 
   context.fill();
   context.closePath();
 }

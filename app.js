@@ -58,8 +58,8 @@ var App = {
       updateBlob( blob, App._delta );
     }
     
-    if ( sendBlob > 1 ) {
-      sendBlob -= 1;
+    if ( sendBlob > 0.5 ) {
+      sendBlob -= 0.5;
       diffuseBlobs();
     }
     
@@ -126,7 +126,7 @@ function startSimulation() {
   }
   
   // Create leaf nodes
-  for ( i = 0; i < 2; i++ ) {
+  for ( i = 0; i < 1; i++ ) {
     var parentIndex = Math.floor(Math.random() * nodes.length);
     var parent = nodes[parentIndex];
     var node = generateNode(parent);
