@@ -11,14 +11,23 @@ function drawBlob(context, blob) {
 }
 
 function drawLinks(context, node ) {
-  if ( node.links[0] != null ) {
+  for ( var l = 1; l < node.links.length; l++ ) { // Skip the parent node
+    link = node.links[l];
     context.beginPath();
     context.moveTo(node.x,node.y);
-    context.lineTo(node.links[0].x,node.links[0].y);
+    context.lineTo(link.x,link.y);
     context.lineWidth = 2;
     context.strokeStyle = "#000000";
     context.stroke();
   }
+  // if ( node.links[0] != null ) {
+  //   context.beginPath();
+  //   context.moveTo(node.x,node.y);
+  //   context.lineTo(node.links[0].x,node.links[0].y);
+  //   context.lineWidth = 2;
+  //   context.strokeStyle = "#000000";
+  //   context.stroke();
+  // }
 }
 function drawNode (context, node ) {
   // Draw body

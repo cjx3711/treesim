@@ -116,7 +116,7 @@ function startSimulation() {
   root.size += Math.random() * 5 + 4;
   nodes.push(root);
   // Create branch nodes
-  for ( i = 0; i < 5;) {
+  for ( var i = 0; i < 10;) {
     var parent = nodes[Math.floor(Math.random() * nodes.length)];
     var node = generateNode(parent);
     var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
@@ -129,7 +129,7 @@ function startSimulation() {
   }
   
   // Create leaf nodes
-  for ( i = 0; i < 1; ) {
+  for ( var i = 0; i < 4; ) {
     var parent = nodes[Math.floor(Math.random() * nodes.length)];
     var node = generateNode(parent);
     node.type = 'leaf';
