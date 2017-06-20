@@ -118,9 +118,6 @@
 				blob.dead = true;
 				blob.percent = 1;
 				blob.to.energy += blob.value;
-				if ( blob.to.energy > blob.to.size ) {
-					blob.to.energy = blob.to.size;
-				}
 			}
 		}
 
@@ -161,7 +158,7 @@
 			// Draw energy
 			context.beginPath();
 			context.fillStyle = "#BAAC24";
-			context.arc(node.x, node.y, node.energy, 0, Math.PI*2, true); 
+			context.arc(node.x, node.y, Math.min(node.energy, node.size), 0, Math.PI*2, true); 
 			context.fill();
 			context.closePath();
 			
