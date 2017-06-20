@@ -116,24 +116,30 @@ function startSimulation() {
   root.size += Math.random() * 5 + 4;
   nodes.push(root);
   // Create branch nodes
-  for ( i = 0; i < 5; i++ ) {
-    var parentIndex = Math.floor(Math.random() * nodes.length);
-    var parent = nodes[parentIndex];
+  for ( i = 0; i < 5;) {
+    var parent = nodes[Math.floor(Math.random() * nodes.length)];
     var node = generateNode(parent);
-    node.x = parent.x + (Math.random() * 100 + 30) * (Math.random() < 0.5 ? -1 : 1);
-    node.y = parent.y + (Math.random() * 100 + 30) * (Math.random() < 0.5 ? -1 : 1);
-    nodes.push(node);
+    var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
+    node.x = coord.x + parent.x;
+    node.y = coord.y + parent.y;
+    if ( !collideAll(node) ) {
+      nodes.push(node);
+      i++;
+    }
   }
   
   // Create leaf nodes
-  for ( i = 0; i < 1; i++ ) {
-    var parentIndex = Math.floor(Math.random() * nodes.length);
-    var parent = nodes[parentIndex];
+  for ( i = 0; i < 1; ) {
+    var parent = nodes[Math.floor(Math.random() * nodes.length)];
     var node = generateNode(parent);
     node.type = 'leaf';
-    node.x = parent.x + (Math.random() * 100 + 30) * (Math.random() < 0.5 ? -1 : 1);
-    node.y = parent.y + (Math.random() * 100 + 30) * (Math.random() < 0.5 ? -1 : 1);
-    nodes.push(node);
+    var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
+    node.x = coord.x + parent.x;
+    node.y = coord.y + parent.y;
+    if ( !collideAll(node) ) {
+      nodes.push(node);
+      i++;
+    }
   }
   App.start();
 }
