@@ -28,6 +28,7 @@
 		<canvas id="main"></canvas>
 
 		<button onclick="startSimulation();">Start</button>
+		<button onclick="stopSimulation();">Stop</button>
 		<br/>
 
 		<script>
@@ -46,35 +47,128 @@
 		canvas.height = window.innerHeight * 0.8;
 
 		function generateNode (parent) {
+			var size = Math.random() * 10 + 10;
 			return {
 				dead : false,
+				type: null,
         parent: parent,
-        size: Math.random() * 10 + 10,
+				water: size,
+				energy: size,
+        size: size,
 				x: Math.random() * canvas.width,
 				y: Math.random() * canvas.height
 			}
 		}
-
-		function updateNode ( human, delta ) {
-			
+		
+		function generateEnergyBlob(from, to) {
+			return {
+				dead: false,
+				type: 'energy',
+				value: 0,
+				percent: 0,
+				from: from,
+				to: to
+			}
 		}
 
-		function drawNode (context, node ) {
+		function updateNode ( node, delta ) {
+			// Update rate of usage
+			node.energy -= delta * node.size * 0.08;
+			if ( node.energy <= 0 ) {
+				node.energy = 0;
+			}
+			
+			if ( node.type == 'leaf' ) {
+				node.energy += delta * node.size * 0.5;
+				if ( node.energy > node.size ) {
+					node.energy = node.size;
+				}
+			}
+		}
+		
+		function diffuseBlobs() {
+			for ( i in nodes ) {
+				node = nodes[i];
+				if ( node.parent == null ) {
+					continue;
+				}
+				var parentPerc = node.parent.energy / node.parent.size;
+				var childPerc = node.energy / node.size;
+				
+				var ratio = parentPerc / childPerc;
+				
+				if ( ratio < 0.8 ) { // Child has more energy
+					var blob = generateEnergyBlob(node, node.parent);
+					blob.value = node.energy / 2;
+					node.energy /= 2;
+					blobs.push(blob);
+				} else if ( ratio > 1.4 ) { // Parent has more energy
+					var blob = generateEnergyBlob(node.parent, node);
+					blob.value = node.parent.energy / 2;
+					node.parent.energy /= 2;
+					blobs.push(blob);
+				}
+				
+			}
+		}
+		
+		function updateBlob(blob, delta) {
+			blob.percent += delta;
+			if ( blob.percent >= 1 && !blob.dead ) {
+				blob.dead = true;
+				blob.percent = 1;
+				blob.to.energy += blob.value;
+				if ( blob.to.energy > blob.to.size ) {
+					blob.to.energy = blob.to.size;
+				}
+			}
+		}
+
+		function drawBlob(context, blob) {
+			var x = (blob.to.x - blob.from.x) * blob.percent + blob.from.x;
+			var y = (blob.to.y - blob.from.y) * blob.percent + blob.from.y;
+			
 			context.beginPath();
-      context.fillStyle="#001121";
-			context.arc(node.x, node.y, node.size, 0, Math.PI*2, true); 
+			context.fillStyle = "#BAAC24";
+			context.arc(x, y, blob.value * 0.5, 0, Math.PI*2, true); 
 			context.fill();
 			context.closePath();
-      
-      if ( node.parent != null ) {
-        context.beginPath();
-        context.moveTo(node.x,node.y);
-        context.lineTo(node.parent.x,node.parent.y);
-        context.stroke();
-      }
+		}
+		function drawNode (context, node ) {
+			if ( node.parent != null ) {
+				context.beginPath();
+				context.moveTo(node.x,node.y);
+				context.lineTo(node.parent.x,node.parent.y);
+				context.lineWidth = 2;
+				context.strokeStyle = "#000000";
+				context.stroke();
+			}
+			
+			// Draw body
+			context.beginPath();
+			context.lineWidth = 3;
+			if ( node.type == null ) {
+				context.strokeStyle = "#001121";
+			} else if ( node.type == 'leaf' ) {
+				context.strokeStyle = "#249A21";
+			}
+			context.fillStyle = "#000000";
+			context.arc(node.x, node.y, node.size, 0, Math.PI*2, true); 
+			context.fill();
+			context.stroke();
+			context.closePath();
+			
+			// Draw energy
+			context.beginPath();
+			context.fillStyle = "#BAAC24";
+			context.arc(node.x, node.y, node.energy, 0, Math.PI*2, true); 
+			context.fill();
+			context.closePath();
+			
 		}
 	
 		var date = new Date();
+		var sendBlob = 0;
 		var App = {
 			fps: 30,
 			_actualFPS: 0,
@@ -109,6 +203,23 @@
 				App._delta = (App._currTime - App._prevTime)/1000;
 				App._actualFPS = 1 / App._delta;
 
+				sendBlob += App._delta;
+				
+				for ( i in nodes ) {
+					node = nodes[i];
+					updateNode(node, App._delta);
+				}
+				
+				for ( i in blobs ) {
+					var blob = blobs[i];
+					updateBlob( blob, App._delta );
+				}
+				
+				if ( sendBlob > 1 ) {
+					sendBlob -= 1;
+					diffuseBlobs();
+				}
+				
 				App._prevTime = App._currTime;
 			},
 
@@ -119,8 +230,21 @@
 
 				
 				for ( i in nodes ) {
-					node = nodes[i];
-					drawNode ( context, node );
+					var node = nodes[i];
+					drawNode( context, node );
+				}
+				
+				for ( i in blobs ) {
+					var blob = blobs[i];
+					drawBlob( context, blob );
+				}
+				
+				for ( var i = 0; i < blobs.length;) {
+					if ( blobs[i].dead ) {
+						blobs.splice(i, 1);
+					} else {
+						i++;
+					}
 				}
 
 				context.globalAlpha=0.6;
@@ -135,21 +259,36 @@
 		};
 
 		var nodes = [];
+		var blobs = [];
 
 		function startSimulation() {
 	 		nodes.length = 0;
+			blobs.length = 0;
+			
       var root = generateNode(null);
       root.x = canvas.width / 2 - (canvas.width / 6) + Math.random() * (canvas.width / 3);
       root.y = canvas.height / 2 - (canvas.height / 6) + Math.random() * (canvas.height / 3);
       
       root.size += Math.random() * 5 + 4;
       nodes.push(root);
-			for ( i = 0; i < 3; i++ ) {
+			// Create branch nodes
+			for ( i = 0; i < 5; i++ ) {
         var parentIndex = Math.floor(Math.random() * nodes.length);
         var parent = nodes[parentIndex];
         var node = generateNode(parent);
         node.x = parent.x + (Math.random() * 100 + 30) * (Math.random() < 0.5 ? -1 : 1);
         node.y = parent.y + (Math.random() * 100 + 30) * (Math.random() < 0.5 ? -1 : 1);
+				nodes.push(node);
+			}
+			
+			// Create leaf nodes
+			for ( i = 0; i < 2; i++ ) {
+				var parentIndex = Math.floor(Math.random() * nodes.length);
+				var parent = nodes[parentIndex];
+				var node = generateNode(parent);
+				node.type = 'leaf';
+				node.x = parent.x + (Math.random() * 100 + 30) * (Math.random() < 0.5 ? -1 : 1);
+				node.y = parent.y + (Math.random() * 100 + 30) * (Math.random() < 0.5 ? -1 : 1);
 				nodes.push(node);
 			}
 			App.start();
