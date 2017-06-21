@@ -32,15 +32,25 @@ function diffuseBlobs() {
       
       var ratio = linkPerc / nodePerc;
       
+      /* Algo:
+       * If the ratio of the energy difference is more than a threshold,
+       * Send energy.
+       * Either 20% of the node's energy
+       * or 30% of the energy the receivig node requires
+       * whichever is lower
+       */
+    
       if ( ratio < 0.9 ) { // Child has more energy
         var blob = generateEnergyBlob(node, link);
-        var energy = Math.min(node.energy * 0.2, link.energy * 0.2);
+        var energy = Math.min(node.energy * 0.2, link.energyInv() * 0.3);
+        if ( energy <= 0 ) return;
         blob.value = energy;
         node.energy -= energy;
         blobs.push(blob);
       } else if ( ratio > 1.2 ) { // Parent has more energy
         var blob = generateEnergyBlob(link, node);
-        var energy = Math.min(node.energy * 0.2, link.energy * 0.2);
+        var energy = Math.min(node.energyInv() * 0.3, link.energy * 0.2);
+        if ( energy <= 0 ) return;
         blob.value = energy;
         link.energy -= energy;
         blobs.push(blob);

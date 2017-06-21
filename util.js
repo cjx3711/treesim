@@ -18,23 +18,26 @@ function cartToPol(x, y) {
 /**
  * Does a collision against all the nodes.
  */
-function collideAll(node) {
+function collideAll(node, buffer) {
+  if ( buffer == undefined ) buffer = 0;
+  
   for ( i in nodes ) {
     testNode = nodes[i];
     if ( node == testNode ) continue; // Don't collide self
-    if ( collide ( node, testNode ) ) {
+    if ( collide ( node, testNode, buffer ) ) {
       return true;
     }
   }
   return false;
 }
 
-function collide(nodea, nodeb) {
+function collide(nodea, nodeb, buffer) {
+  if ( buffer == undefined ) buffer = 0;
   var size = nodea.size + nodeb.size;
   size = size * size;
   var x = nodea.x - nodeb.x;
   var y = nodea.y - nodeb.y;
-  return x*x + y*y <= size;
+  return x*x + y*y <= size + buffer * buffer;
 }
 
 function radToDeg(rad) {

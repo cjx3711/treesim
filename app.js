@@ -15,6 +15,7 @@ var sendBlob = 0;
 var App = {
   fps: 30,
   _actualFPS: 0,
+  _displayFPS: 0,
   _prevTime : 0,
   _currTime : 0,
   _delta : 0,
@@ -44,7 +45,7 @@ var App = {
   update: function() {
     App._currTime = Date.now();
     App._delta = (App._currTime - App._prevTime)/1000;
-    App._actualFPS = 1 / App._delta;
+    App._actualFPS = App._actualFPS * 0.7 +  (1 / App._delta) * 0.3;
 
     sendBlob += App._delta;
     
@@ -59,6 +60,7 @@ var App = {
     }
     
     if ( sendBlob > 0.5 ) {
+      App._displayFPS = App._actualFPS;
       sendBlob -= 0.5;
       diffuseBlobs();
     }
@@ -100,7 +102,7 @@ var App = {
     context.globalAlpha=1;
     context.fillStyle="#000000";
     context.font="10px Arial";
-    context.fillText ( "fps: " + Math.round( App._actualFPS ) ,10 , 10);
+    context.fillText ( "fps: " + Math.round( App._displayFPS ) ,10 , 10);
     context.font="15px Arial";
   }
 };
@@ -122,7 +124,7 @@ function startSimulation() {
     var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
     node.x = coord.x + parent.x;
     node.y = coord.y + parent.y;
-    if ( !collideAll(node) ) {
+    if ( !collideAll(node, 20) ) {
       node.setParent(parent);
       nodes.push(node);
       i++;
@@ -137,7 +139,7 @@ function startSimulation() {
     var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
     node.x = coord.x + parent.x;
     node.y = coord.y + parent.y;
-    if ( !collideAll(node) ) {
+    if ( !collideAll(node, 20) ) {
       node.setParent(parent);
       nodes.push(node);
       i++;

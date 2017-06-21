@@ -16,6 +16,9 @@ function generateNode () {
         node.links[0] = parent; // First link is always parent
         parent.links.push(node); // Link back to the parent
       }
+    },
+    energyInv: function() {
+      return node.size - node.energy;
     }
   };
 
