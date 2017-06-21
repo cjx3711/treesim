@@ -22,8 +22,8 @@ function drawLinks(context, node ) {
     context.beginPath();
     context.moveTo(node.x,node.y);
     context.lineTo(link.x,link.y);
-    var radius = Math.min(node.size, link.size);
-    context.lineWidth = radius;
+    var thickness = Math.min(node.size, link.size);
+    context.lineWidth = thickness;
     context.strokeStyle = "#4e342e";
     context.stroke();
   }

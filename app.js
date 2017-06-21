@@ -53,10 +53,16 @@ var App = {
       node = nodes[i];
       updateNode(node, App._delta);
     }
+  
     
     for ( i in blobs ) {
       var blob = blobs[i];
       updateBlob( blob, App._delta );
+    }
+    
+    for ( i in nodes ) {
+      node = nodes[i];
+      spreadNode(node, App._delta);
     }
     
     if ( sendBlob > 0.5 ) {

@@ -12,6 +12,7 @@ function updateNode ( node, delta ) {
     node.water = 0;
   }
   
+  // Update production stats
   if ( node.type == 'leaf' ) {
     node.energy += delta * node.size * 0.4;
     if ( node.energy > node.size ) {
@@ -26,10 +27,44 @@ function updateNode ( node, delta ) {
     }
   }
   
+  // Update visual display
   node.displayEnergy += (node.energy - node.displayEnergy) * delta * 5;
   node.displayWater += (node.water - node.displayWater) * delta * 5;
+  
+  // Update movement
+  node.x += node.vX * delta;
+  node.y += node.vY * delta;
+  
+  // Friction
+  if ( Math.abs(node.vX) < 0.01 ) {
+    node.vX = 0;
+  } else {
+    node.vX -= (node.vX > 0 ? 1 : -1) * delta * 20;
+  }
+  if ( Math.abs(node.vY) < 0.01 ) {
+    node.vY = 0;
+  } else {
+    node.vY -= (node.vY > 0 ? 1 : -1) * delta * 20;
+  }
 }
 
+function spreadNode(node, delta) {
+  for ( var l = 0; l < node.links.length; l++ ) {
+    link = node.links[l];
+    if ( link == null ) continue;
+    var thickness = Math.min(node.size, link.size);
+    var desiredDistance = thickness * 5;
+    var currentDist = dist(node, link);
+    var distDelta = desiredDistance - currentDist;
+    var pullPower = 20;
+    var weightRatio = node.size / link.size;
+    var dir = cartToPol(link.x - node.x, link.y - node.y).dir;
+    var vel = polToCart(dir, unit(distDelta) * pullPower * weightRatio);
+    // Move the links
+    link.vX += vel.x * delta;
+    link.vY += vel.y * delta;
+  }
+}
 /**
  * Logic to decide where to send the energy
  */
@@ -37,7 +72,8 @@ function diffuseBlobs() {
   for ( i in nodes ) {
     node = nodes[i];
     
-    for ( var l = 1; l < node.links.length; l++ ) { // Skip the parent node
+    // Skip the parent node
+    for ( var l = 1; l < node.links.length; l++ ) { 
       link = node.links[l];
 
       

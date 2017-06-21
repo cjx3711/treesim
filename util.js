@@ -1,5 +1,4 @@
 function polToCart(dir, dist) {
-  dir = degToRad(dir);
   var x = dist*Math.cos(dir);
   var y = dist*Math.sin(dir);
   return {
@@ -15,6 +14,19 @@ function cartToPol(x, y) {
   }
 }
 
+function unit(x) {
+  if ( x == 0 ) return 0;
+  return x > 0 ? 1 : -1;
+}
+function distSq(a, b) {
+  var x = a.x - b.x;
+  var y = a.y - b.y;
+  return x*x + y*y;
+}
+
+function dist(a, b) {
+  return Math.sqrt(distSq(a,b));
+}
 /**
  * Does a collision against all the nodes.
  */
@@ -34,10 +46,7 @@ function collideAll(node, buffer) {
 function collide(nodea, nodeb, buffer) {
   if ( buffer == undefined ) buffer = 0;
   var size = nodea.size + nodeb.size;
-  size = size * size;
-  var x = nodea.x - nodeb.x;
-  var y = nodea.y - nodeb.y;
-  return x*x + y*y <= size + buffer * buffer;
+  return distSq(nodea, nodeb) <= size * size + buffer * buffer;
 }
 
 function radToDeg(rad) {
