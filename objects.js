@@ -1,17 +1,24 @@
-function generateNode (parent) {
+function generateNode () {
   var size = Math.random() * 10 + 10;
   var node = {
     dead : false,
     type: null,
-    links: [], // Stores list of nodes. 
+    links: [null], // Stores list of nodes. 
     water: size,
     energy: size,
+    displayEnergy: size,
+    displayWater: size,
     size: size,
     x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height
+    y: Math.random() * canvas.height,
+    setParent: function(parent) {
+      if ( parent != null ) {
+        node.links[0] = parent; // First link is always parent
+        parent.links.push(node); // Link back to the parent
+      }
+    }
   };
-  node.links.push(parent); // First link is always parent
-  if ( parent != null ) parent.links.push(node); // Link back to the parent
+
   return node;
 }
 

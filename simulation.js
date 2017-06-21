@@ -13,6 +13,9 @@ function updateNode ( node, delta ) {
       node.energy = node.size;
     }
   }
+  
+  node.displayEnergy += (node.energy - node.displayEnergy) * delta * 5;
+  node.displayWater += (node.water - node.displayWater) * delta * 5;
 }
 
 /**
@@ -31,14 +34,14 @@ function diffuseBlobs() {
       
       if ( ratio < 0.9 ) { // Child has more energy
         var blob = generateEnergyBlob(node, link);
-        var energy = node.energy * 0.2;
+        var energy = Math.min(node.energy * 0.2, link.energy * 0.2);
         blob.value = energy;
         node.energy -= energy;
         blobs.push(blob);
       } else if ( ratio > 1.2 ) { // Parent has more energy
         var blob = generateEnergyBlob(link, node);
-        var energy = link.energy * 0.2;
-        blob.value = link.energy * 0.2;
+        var energy = Math.min(node.energy * 0.2, link.energy * 0.2);
+        blob.value = energy;
         link.energy -= energy;
         blobs.push(blob);
       }

@@ -47,7 +47,7 @@ function drawNode (context, node ) {
   // Draw energy
   context.beginPath();
   context.fillStyle = "#BAAC24";
-  context.arc(node.x, node.y, Math.min(node.energy, node.size), 0, Math.PI*2, true); 
+  context.arc(node.x, node.y, Math.min(node.displayEnergy, node.size), 0, Math.PI*2, true); 
   context.fill();
   context.closePath();
   

@@ -118,11 +118,12 @@ function startSimulation() {
   // Create branch nodes
   for ( var i = 0; i < 10;) {
     var parent = nodes[Math.floor(Math.random() * nodes.length)];
-    var node = generateNode(parent);
+    var node = generateNode();
     var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
     node.x = coord.x + parent.x;
     node.y = coord.y + parent.y;
     if ( !collideAll(node) ) {
+      node.setParent(parent);
       nodes.push(node);
       i++;
     }
@@ -131,12 +132,13 @@ function startSimulation() {
   // Create leaf nodes
   for ( var i = 0; i < 4; ) {
     var parent = nodes[Math.floor(Math.random() * nodes.length)];
-    var node = generateNode(parent);
+    var node = generateNode();
     node.type = 'leaf';
     var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
     node.x = coord.x + parent.x;
     node.y = coord.y + parent.y;
     if ( !collideAll(node) ) {
+      node.setParent(parent);
       nodes.push(node);
       i++;
     }
