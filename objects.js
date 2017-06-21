@@ -1,13 +1,16 @@
+var id = 0;
 function generateNode () {
   var size = Math.random() * 10 + 10;
   var node = {
+    id: id++,
     dead : false,
+    opacity: 1,
     type: null,
     links: [null], // Stores list of nodes. 
-    water: size,
-    energy: size,
-    displayEnergy: size,
-    displayWater: size,
+    water: size * 0.75,
+    energy: size * 0.75,
+    displayEnergy: size * 0.75,
+    displayWater: size * 0.75,
     size: size,
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
@@ -19,11 +22,28 @@ function generateNode () {
         parent.links.push(node); // Link back to the parent
       }
     },
+    energyPerc: function() {
+      return node.energy / node.size;
+    },
+    waterPerc: function() {
+      return node.water / node.size;
+    },
     energyInv: function() {
       return node.size - node.energy;
     },
     waterInv: function() {
       return node.size - node.water;
+    },
+    removeLink: function(link) {
+      for (var r = 0; r < node.links.length;) {
+        if ( link == node.links[r] ) {
+          if ( r == 0 ) node.links[0] = null;
+          else node.links.splice(r, 1);
+          return;
+        } else {
+          r++;
+        }
+      }
     }
   };
 

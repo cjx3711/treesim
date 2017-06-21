@@ -49,22 +49,25 @@ var App = {
 
     sendBlob += App._delta;
     
+    // Update nodes
     for ( i in nodes ) {
       node = nodes[i];
       updateNode(node, App._delta);
     }
   
-    
+    // Update blobs
     for ( i in blobs ) {
       var blob = blobs[i];
       updateBlob( blob, App._delta );
     }
     
+    // Spread nodes out
     for ( i in nodes ) {
       node = nodes[i];
       spreadNode(node, App._delta);
     }
     
+    // Blob diffusion logic
     if ( sendBlob > 0.5 ) {
       App._displayFPS = App._actualFPS;
       sendBlob -= 0.5;
@@ -73,12 +76,34 @@ var App = {
     
     // Delete blobs
     for ( var i = 0; i < blobs.length;) {
-      if ( blobs[i].dead ) {
+      var blob = blobs[i];
+      // If blob is done, or the parent / child node is dead
+      if ( blob.dead || blob.to.dead || blob.from.dead ) {
         blobs.splice(i, 1);
       } else {
         i++;
       }
     }
+    
+    // Delete nodes
+    for (var i = 0; i < nodes.length; ) {
+      var node = nodes[i];
+      if ( node.dead && node.opacity == 0 ) {
+        // Unlink node from all links
+        while ( node.links.length > 0 ) {
+          var link = node.links.pop();
+          if ( link != null ) link.removeLink(node);
+        }
+
+        // Remove node
+        nodes.splice(i, 1);
+      } else {
+        i++;
+      }
+    }
+     
+    
+
     
     App._prevTime = App._currTime;
   },
@@ -116,6 +141,7 @@ var App = {
 };
 
 function startSimulation() {
+  id = 0;
   nodes.length = 0;
   blobs.length = 0;
   
@@ -126,7 +152,7 @@ function startSimulation() {
   root.size += Math.random() * 5 + 4;
   nodes.push(root);
   // Create branch nodes
-  for ( var i = 0; i < 6;) {
+  for ( var i = 0; i < 9;) {
     var parent = nodes[Math.floor(Math.random() * nodes.length)];
     var node = generateNode();
     var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
@@ -140,7 +166,7 @@ function startSimulation() {
   }
   
   // Create leaf nodes
-  for ( var i = 0; i < 3; ) {
+  for ( var i = 0; i < 1; ) {
     var parent = nodes[Math.floor(Math.random() * nodes.length)];
     var node = generateNode();
     node.type = 'leaf';
@@ -155,7 +181,7 @@ function startSimulation() {
   }
   
   // Create root nodes
-  for ( var i = 0; i < 3; ) {
+  for ( var i = 0; i < 1; ) {
     var parent = nodes[Math.floor(Math.random() * nodes.length)];
     var node = generateNode();
     node.type = 'root';
@@ -168,6 +194,10 @@ function startSimulation() {
       i++;
     }
   }
+  App.start();
+}
+
+function resumeSimulation() {
   App.start();
 }
 

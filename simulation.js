@@ -1,32 +1,53 @@
 
 
 function updateNode ( node, delta ) {
-  // Update rate of usage
-  node.energy -= delta * node.size * 0.04;
-  if ( node.energy <= 0 ) {
+  if ( !node.dead ) {
+    // Update rate of usage
+    node.energy -= delta * node.size * 0.04;
+    if ( node.energy <= 0 ) {
+      node.energy = 0;
+    }
+    
+    node.water -= delta * node.size * 0.04;
+    if ( node.water <= 0 ) {
+      node.water = 0;
+    }
+    
+    // Update production stats
+    if ( node.type == 'leaf' ) {
+      node.energy += delta * node.size * 0.3;
+      if ( node.energy > node.size ) {
+        node.energy = node.size;
+      }
+    }
+    
+    if ( node.type == 'root' ) {
+      node.water += delta * node.size * 0.3;
+      if ( node.water > node.size ) {
+        node.water = node.size;
+      }
+    }
+    
+    // Grow
+    var waterPerc = node.waterPerc();
+    var energyPerc = node.energyPerc();
+    if ( waterPerc > 0.75 && energyPerc > 0.75 ) {
+      if ( node.size < 20 ) node.size += 2 * delta;
+    }
+    if ( waterPerc < 0.25 || energyPerc < 0.25 ) {
+      node.size -= 2 * delta;
+      if ( node.size <= 7 ) {
+        node.dead = true;
+      }
+    }
+  } else {
     node.energy = 0;
-  }
-  
-  node.water -= delta * node.size * 0.04;
-  if ( node.water <= 0 ) {
     node.water = 0;
-  }
-  
-  // Update production stats
-  if ( node.type == 'leaf' ) {
-    node.energy += delta * node.size * 0.4;
-    if ( node.energy > node.size ) {
-      node.energy = node.size;
+    node.opacity -= delta * 0.5;
+    if ( node.opacity < 0 ) {
+      node.opacity = 0;
     }
   }
-  
-  if ( node.type == 'root' ) {
-    node.water += delta * node.size * 0.4;
-    if ( node.water > node.size ) {
-      node.water = node.size;
-    }
-  }
-  
   // Update visual display
   node.displayEnergy += (node.energy - node.displayEnergy) * delta * 5;
   node.displayWater += (node.water - node.displayWater) * delta * 5;
@@ -71,12 +92,12 @@ function spreadNode(node, delta) {
 function diffuseBlobs() {
   for ( i in nodes ) {
     node = nodes[i];
-    
+    if ( node.dead ) continue;
     // Skip the parent node
     for ( var l = 1; l < node.links.length; l++ ) { 
       link = node.links[l];
 
-      
+      if ( link.dead ) continue;
       /* Algo:
        * If the ratio of the energy difference is more than a threshold,
        * Send energy.
