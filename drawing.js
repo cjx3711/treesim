@@ -3,14 +3,20 @@ function drawBlob(context, blob) {
   var x = (blob.to.x - blob.from.x) * blob.percent + blob.from.x;
   var y = (blob.to.y - blob.from.y) * blob.percent + blob.from.y;
   
+  context.globalAlpha = 1;
   context.beginPath();
-  context.fillStyle = "#ffd54f";
+  if ( blob.type == 'energy' ) {
+    context.fillStyle = "#ffd54f";
+  } else {
+    context.fillStyle = "#1976d2";
+  }
   context.arc(x, y, Math.min(6,blob.value), 0, Math.PI*2, true); 
   context.fill();
   context.closePath();
 }
 
 function drawLinks(context, node ) {
+  context.globalAlpha = 1;
   for ( var l = 1; l < node.links.length; l++ ) { // Skip the parent node
     link = node.links[l];
     context.beginPath();
@@ -33,23 +39,43 @@ function drawLinks(context, node ) {
 function drawNode (context, node ) {
   // Draw body
   context.beginPath();
-  context.lineWidth = 4;
+  context.globalAlpha = 1;
+  context.fillStyle = "#4e342e";
+  context.arc(node.x, node.y, node.size, 0, Math.PI*2, true); 
+  context.fill();
+  context.closePath();
+  
+  context.lineWidth = 2;
+  
+  // Draw energy
+  context.beginPath();
+  // context.globalAlpha = 0.5;
+  context.fillStyle = "#ffd54f";
+  context.arc(node.x, node.y, Math.min(node.displayEnergy, node.size), 0, Math.PI, true); 
+  context.fill();
+  context.closePath();
+  
+  // Draw water
+  context.beginPath();
+  // context.globalAlpha = 0.5;
+  context.fillStyle = "#1976d2 ";
+  context.arc(node.x, node.y, Math.min(node.displayWater, node.size), Math.PI, Math.PI * 2, true); 
+  context.fill();
+  context.closePath();
+  
+  // Draw outline
   if ( node.type == null ) {
     context.strokeStyle = "#795548";
   } else if ( node.type == 'leaf' ) {
     context.strokeStyle = "#43a047";
+  } else if ( node.type == 'root' ) {
+    context.strokeStyle = "#666666";
   }
-  context.fillStyle = "#4e342e";
+  
+  context.beginPath();
+  context.globalAlpha = 1;
+  context.lineWidth = 3;
   context.arc(node.x, node.y, node.size, 0, Math.PI*2, true); 
-  context.fill();
   context.stroke();
   context.closePath();
-  
-  // Draw energy
-  context.beginPath();
-  context.fillStyle = "#ffd54f";
-  context.arc(node.x, node.y, Math.min(node.displayEnergy, node.size), 0, Math.PI*2, true); 
-  context.fill();
-  context.closePath();
-  
 }

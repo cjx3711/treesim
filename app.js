@@ -43,7 +43,7 @@ var App = {
     App.draw();
   },
   update: function() {
-    App._currTime = Date.now();
+    App._currTime = Date.now(); //window.performance.now();
     App._delta = (App._currTime - App._prevTime)/1000;
     App._actualFPS = App._actualFPS * 0.7 +  (1 / App._delta) * 0.3;
 
@@ -63,6 +63,15 @@ var App = {
       App._displayFPS = App._actualFPS;
       sendBlob -= 0.5;
       diffuseBlobs();
+    }
+    
+    // Delete blobs
+    for ( var i = 0; i < blobs.length;) {
+      if ( blobs[i].dead ) {
+        blobs.splice(i, 1);
+      } else {
+        i++;
+      }
     }
     
     App._prevTime = App._currTime;
@@ -88,13 +97,6 @@ var App = {
       drawBlob( context, blob );
     }
     
-    for ( var i = 0; i < blobs.length;) {
-      if ( blobs[i].dead ) {
-        blobs.splice(i, 1);
-      } else {
-        i++;
-      }
-    }
 
     context.globalAlpha=0.6;
     context.fillStyle="#DDDDDD";
@@ -118,7 +120,7 @@ function startSimulation() {
   root.size += Math.random() * 5 + 4;
   nodes.push(root);
   // Create branch nodes
-  for ( var i = 0; i < 10;) {
+  for ( var i = 0; i < 6;) {
     var parent = nodes[Math.floor(Math.random() * nodes.length)];
     var node = generateNode();
     var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
@@ -132,10 +134,25 @@ function startSimulation() {
   }
   
   // Create leaf nodes
-  for ( var i = 0; i < 4; ) {
+  for ( var i = 0; i < 3; ) {
     var parent = nodes[Math.floor(Math.random() * nodes.length)];
     var node = generateNode();
     node.type = 'leaf';
+    var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
+    node.x = coord.x + parent.x;
+    node.y = coord.y + parent.y;
+    if ( !collideAll(node, 20) ) {
+      node.setParent(parent);
+      nodes.push(node);
+      i++;
+    }
+  }
+  
+  // Create root nodes
+  for ( var i = 0; i < 3; ) {
+    var parent = nodes[Math.floor(Math.random() * nodes.length)];
+    var node = generateNode();
+    node.type = 'root';
     var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
     node.x = coord.x + parent.x;
     node.y = coord.y + parent.y;

@@ -19,6 +19,9 @@ function generateNode () {
     },
     energyInv: function() {
       return node.size - node.energy;
+    },
+    waterInv: function() {
+      return node.size - node.water;
     }
   };
 
@@ -29,6 +32,17 @@ function generateEnergyBlob(from, to) {
   return {
     dead: false,
     type: 'energy',
+    value: 0,
+    percent: 0,
+    from: from,
+    to: to
+  }
+}
+
+function generateWaterBlob(from, to) {
+  return {
+    dead: false,
+    type: 'water',
     value: 0,
     percent: 0,
     from: from,
