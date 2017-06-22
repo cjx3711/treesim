@@ -1,4 +1,7 @@
-
+/**
+ * File: simulation.js
+ * All functions that handle the simulation, be it updating or logic will
+ */
 
 function updateNode ( node, delta ) {
   if ( !node.dead ) {
@@ -31,12 +34,15 @@ function updateNode ( node, delta ) {
     // Grow
     var waterPerc = node.waterPerc();
     var energyPerc = node.energyPerc();
-    if ( waterPerc > 0.75 && energyPerc > 0.75 ) {
-      if ( node.size < 20 ) node.size += 2 * delta;
+    if ( (waterPerc > 0.75 || energyPerc > 0.75) && (waterPerc + energyPerc) > 0.75 + 0.5 ) {
+      if ( node.size < 25 ) node.size += 2 * delta;
+      if ( node.size > 20 && waterPerc > 0.75 && energyPerc > 0.75 ) {
+        node.spawn();
+      }
     }
     if ( waterPerc < 0.25 || energyPerc < 0.25 ) {
       node.size -= 2 * delta;
-      if ( node.size <= 7 ) {
+      if ( node.size <= 5 ) {
         node.dead = true;
       }
     }
@@ -138,7 +144,7 @@ function diffuseBlobs() {
        }
      } else if ( ratio > 1.2 ) { // Parent has more water
        var blob = generateWaterBlob(link, node);
-       var water = Math.min(node.waterInv() * 0.3, link.water * 0.2);
+       var water = Math.min(link.water * 0.2, node.waterInv() * 0.3);
        if ( water > 0 ) {
          blob.value = water;
          link.water -= water;

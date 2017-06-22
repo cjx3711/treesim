@@ -7,11 +7,11 @@ function generateNode () {
     opacity: 1,
     type: null,
     links: [null], // Stores list of nodes. 
-    water: size * 0.75, // Actual water level
-    energy: size * 0.75, // Actual energy level
-    displayEnergy: size * 0.75, // Energy level to display
-    displayWater: size * 0.75, // Water level to display
-    size: size, // Radius ( May change to area )
+    water: 0, // Actual water level
+    energy: 0, // Actual energy level
+    displayEnergy: 0, // Energy level to display
+    displayWater: 0, // Water level to display
+    size: 0, // Radius ( May change to area )
     x: Math.random() * canvas.width, // Position
     y: Math.random() * canvas.height,
     vX: 0, // Velocity
@@ -21,6 +21,13 @@ function generateNode () {
         node.links[0] = parent; // First link is always parent
         parent.links.push(node); // Link back to the parent
       }
+    },
+    setSize: function(size) {
+      node.size = size;
+      node.water = size * 0.75;
+      node.energy = size * 0.75;
+      node.displayEnergy = size * 0.75;
+      node.displayWater = size * 0.75;
     },
     energyPerc: function() {
       return node.energy / node.size;
@@ -34,6 +41,19 @@ function generateNode () {
     waterInv: function() {
       return node.size - node.water;
     },
+    spawn: function() {
+      var rand = Math.random();
+      var spawn;
+      if ( rand < 0.8 ) spawn = addNode(node);
+      else if ( rand < 0.9 ) spawn = addEnergy(node);
+      else spawn = addWater(node);
+      if ( spawn != null ) {
+        var spawnSize = 5;
+        spawn.setSize(spawnSize);
+        node.water -= spawnSize * 0.75;
+        node.energy -= spawnSize * 0.75;
+      }
+    },
     removeLink: function(link) {
       for (var r = 0; r < node.links.length;) {
         if ( link == node.links[r] ) {
@@ -46,6 +66,7 @@ function generateNode () {
       }
     }
   };
+  node.setSize(size);
 
   return node;
 }

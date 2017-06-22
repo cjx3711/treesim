@@ -189,52 +189,64 @@ function addRoot() {
   root.y = canvas.height / 2 - (canvas.height / 6) + Math.random() * (canvas.height / 3);
   nodes.push(root);
 }
-function addNode() {
-  while(true) {
+function addNode(parent) {
+  var tries = 3;
+  var distance = parent == undefined ? (Math.random() * 80 + 40) : (Math.random() * 15 + 30); // If it's a spawn, spawn closer
+  while(tries > 0) {
     if ( nodes.length == 0 ) addRoot();
-    var parent = nodes[Math.floor(Math.random() * nodes.length)];
+    if ( parent == undefined ) parent = nodes[Math.floor(Math.random() * nodes.length)];
     var node = generateNode();
-    var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
+    var coord = polToCart(Math.random() * 360, distance);
     node.x = coord.x + parent.x;
     node.y = coord.y + parent.y;
     if ( !collideAll(node, 20) ) {
       node.setParent(parent);
       nodes.push(node);
-      return;
+      return node;
     }
+    tries--;
   }
+  return null;
 }
 
-function addWater() {
-  while(true) {
+function addWater(parent) {
+  var tries = 3;
+  var distance = parent == undefined ? (Math.random() * 80 + 40) : (Math.random() * 15 + 30); // If it's a spawn, spawn closer
+  while(tries > 0) {
     if ( nodes.length == 0 ) addRoot();
-    var parent = nodes[Math.floor(Math.random() * nodes.length)];
+    if ( parent == undefined ) parent = nodes[Math.floor(Math.random() * nodes.length)];
     var node = generateNode();
     node.type = 'root';
-    var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
+    var coord = polToCart(Math.random() * 360, distance );
     node.x = coord.x + parent.x;
     node.y = coord.y + parent.y;
     if ( !collideAll(node, 20) ) {
       node.setParent(parent);
       nodes.push(node);
-      return;
+      return node;
     }
+    tries--;
   }
+  return null;
 }
 
-function addEnergy() {
-  while(true) {
+function addEnergy(parent) {
+  var tries = 3;
+  var distance = parent == undefined ? (Math.random() * 80 + 40) : (Math.random() * 15 + 30); // If it's a spawn, spawn closer
+  while(tries > 0) {
     if ( nodes.length == 0 ) addRoot();
-    var parent = nodes[Math.floor(Math.random() * nodes.length)];
+    if ( parent == undefined ) parent = nodes[Math.floor(Math.random() * nodes.length)];
     var node = generateNode();
     node.type = 'leaf';
-    var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
+    var coord = polToCart(Math.random() * 360, distance);
     node.x = coord.x + parent.x;
     node.y = coord.y + parent.y;
     if ( !collideAll(node, 20) ) {
       node.setParent(parent);
       nodes.push(node);
-      return;
+      return node;
     }
+    tries--;
   }
+  return null;
 }
