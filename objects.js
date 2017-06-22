@@ -7,14 +7,14 @@ function generateNode () {
     opacity: 1,
     type: null,
     links: [null], // Stores list of nodes. 
-    water: size * 0.75,
-    energy: size * 0.75,
-    displayEnergy: size * 0.75,
-    displayWater: size * 0.75,
-    size: size,
-    x: Math.random() * canvas.width,
+    water: size * 0.75, // Actual water level
+    energy: size * 0.75, // Actual energy level
+    displayEnergy: size * 0.75, // Energy level to display
+    displayWater: size * 0.75, // Water level to display
+    size: size, // Radius ( May change to area )
+    x: Math.random() * canvas.width, // Position
     y: Math.random() * canvas.height,
-    vX: 0,
+    vX: 0, // Velocity
     vY: 0,
     setParent: function(parent) {
       if ( parent != null ) {

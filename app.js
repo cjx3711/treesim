@@ -148,52 +148,23 @@ function startSimulation() {
   var root = generateNode(null);
   root.x = canvas.width / 2 - (canvas.width / 6) + Math.random() * (canvas.width / 3);
   root.y = canvas.height / 2 - (canvas.height / 6) + Math.random() * (canvas.height / 3);
-  
   root.size += Math.random() * 5 + 4;
   nodes.push(root);
   // Create branch nodes
-  for ( var i = 0; i < 9;) {
-    var parent = nodes[Math.floor(Math.random() * nodes.length)];
-    var node = generateNode();
-    var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
-    node.x = coord.x + parent.x;
-    node.y = coord.y + parent.y;
-    if ( !collideAll(node, 20) ) {
-      node.setParent(parent);
-      nodes.push(node);
-      i++;
-    }
+  for ( var i = 0; i < 9; i++) {
+    addNode();
   }
   
   // Create leaf nodes
-  for ( var i = 0; i < 1; ) {
-    var parent = nodes[Math.floor(Math.random() * nodes.length)];
-    var node = generateNode();
-    node.type = 'leaf';
-    var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
-    node.x = coord.x + parent.x;
-    node.y = coord.y + parent.y;
-    if ( !collideAll(node, 20) ) {
-      node.setParent(parent);
-      nodes.push(node);
-      i++;
-    }
+  for ( var i = 0; i < 1; i++) {
+    addEnergy();
   }
   
   // Create root nodes
-  for ( var i = 0; i < 1; ) {
-    var parent = nodes[Math.floor(Math.random() * nodes.length)];
-    var node = generateNode();
-    node.type = 'root';
-    var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
-    node.x = coord.x + parent.x;
-    node.y = coord.y + parent.y;
-    if ( !collideAll(node, 20) ) {
-      node.setParent(parent);
-      nodes.push(node);
-      i++;
-    }
+  for ( var i = 0; i < 1; i++) {
+    addWater();
   }
+  
   App.start();
 }
 
@@ -203,4 +174,67 @@ function resumeSimulation() {
 
 function stopSimulation() {
   App.stop();
+}
+
+function killNode() {
+  var node = nodes[Math.floor(Math.random() * nodes.length)];
+  node.dead = true;
+  node.energy = 0;
+  node.water = 0;
+}
+
+function addRoot() {
+  var root = generateNode(null);
+  root.x = canvas.width / 2 - (canvas.width / 6) + Math.random() * (canvas.width / 3);
+  root.y = canvas.height / 2 - (canvas.height / 6) + Math.random() * (canvas.height / 3);
+  nodes.push(root);
+}
+function addNode() {
+  while(true) {
+    if ( nodes.length == 0 ) addRoot();
+    var parent = nodes[Math.floor(Math.random() * nodes.length)];
+    var node = generateNode();
+    var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
+    node.x = coord.x + parent.x;
+    node.y = coord.y + parent.y;
+    if ( !collideAll(node, 20) ) {
+      node.setParent(parent);
+      nodes.push(node);
+      return;
+    }
+  }
+}
+
+function addWater() {
+  while(true) {
+    if ( nodes.length == 0 ) addRoot();
+    var parent = nodes[Math.floor(Math.random() * nodes.length)];
+    var node = generateNode();
+    node.type = 'root';
+    var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
+    node.x = coord.x + parent.x;
+    node.y = coord.y + parent.y;
+    if ( !collideAll(node, 20) ) {
+      node.setParent(parent);
+      nodes.push(node);
+      return;
+    }
+  }
+}
+
+function addEnergy() {
+  while(true) {
+    if ( nodes.length == 0 ) addRoot();
+    var parent = nodes[Math.floor(Math.random() * nodes.length)];
+    var node = generateNode();
+    node.type = 'leaf';
+    var coord = polToCart(Math.random() * 360, Math.random() * 80 + 40);
+    node.x = coord.x + parent.x;
+    node.y = coord.y + parent.y;
+    if ( !collideAll(node, 20) ) {
+      node.setParent(parent);
+      nodes.push(node);
+      return;
+    }
+  }
 }

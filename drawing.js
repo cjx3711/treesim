@@ -48,42 +48,40 @@ function drawNode (context, node ) {
   
   context.lineWidth = 2;
   
-  if ( !node.dead ) {
-    // Draw energy
-    context.beginPath();
-    // context.globalAlpha = 0.5;
-    context.fillStyle = "#ffd54f";
-    context.arc(node.x, node.y, Math.min(node.displayEnergy, node.size), 0, Math.PI, true); 
-    context.fill();
-    context.closePath();
-    
-    // Draw water
-    context.beginPath();
-    // context.globalAlpha = 0.5;
-    context.fillStyle = "#1976d2 ";
-    context.arc(node.x, node.y, Math.min(node.displayWater, node.size), Math.PI, Math.PI * 2, true); 
-    context.fill();
-    context.closePath();
-    
-    // Draw outline
-    if ( node.type == null ) {
-      context.strokeStyle = "#795548";
-    } else if ( node.type == 'leaf' ) {
-      context.strokeStyle = "#43a047";
-    } else if ( node.type == 'root' ) {
-      context.strokeStyle = "#1976d2";
-    }
-    
-    context.beginPath();
-    context.globalAlpha = 1;
-    context.lineWidth = 3;
-    context.arc(node.x, node.y, node.size, 0, Math.PI*2, true); 
-    context.stroke();
-    context.closePath();
-    
-    // context.fillStyle = "#FF0000";
-    // context.font="12px Arial";
-    // context.fillText ( node.id+"" ,node.x , node.y);
-    
+  // Draw energy
+  context.beginPath();
+  // context.globalAlpha = 0.5;
+  context.fillStyle = "#ffd54f";
+  context.arc(node.x, node.y, Math.min(node.displayEnergy, node.size), 0, Math.PI, true); 
+  context.fill();
+  context.closePath();
+  
+  // Draw water
+  context.beginPath();
+  // context.globalAlpha = 0.5;
+  context.fillStyle = "#1976d2 ";
+  context.arc(node.x, node.y, Math.min(node.displayWater, node.size), Math.PI, Math.PI * 2, true); 
+  context.fill();
+  context.closePath();
+  
+  // Draw outline
+  if ( node.type == null ) {
+    context.strokeStyle = "#795548";
+  } else if ( node.type == 'leaf' ) {
+    context.strokeStyle = "#43a047";
+  } else if ( node.type == 'root' ) {
+    context.strokeStyle = "#1976d2";
   }
+  
+  context.beginPath();
+  context.globalAlpha = 1;
+  context.lineWidth = 3;
+  context.arc(node.x, node.y, node.size, 0, Math.PI*2, true); 
+  context.stroke();
+  context.closePath();
+  
+  // context.fillStyle = "#FF0000";
+  // context.font="12px Arial";
+  // context.fillText ( node.id+"" ,node.x , node.y);
+  
 }
