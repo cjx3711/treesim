@@ -29,7 +29,7 @@ function generateNode () {
       node.energy = size * 0.75;
       node.displayEnergy = size * 0.75;
       node.displayWater = size * 0.75;
-      node.displaySize = size;
+      node.displaySize = size * 0.75;
     },
     energyPerc: function() {
       return node.energy / node.size;
