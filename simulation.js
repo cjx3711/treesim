@@ -57,6 +57,7 @@ function updateNode ( node, delta ) {
   // Update visual display
   node.displayEnergy += (node.energy - node.displayEnergy) * delta * 5;
   node.displayWater += (node.water - node.displayWater) * delta * 5;
+  node.displaySize += (node.size - node.displaySize) * delta * 5;
   
   // Update movement
   node.x += node.vX * delta;
