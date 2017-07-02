@@ -10,7 +10,7 @@ function drawBlob(context, blob) {
   } else {
     context.fillStyle = "#1976d2";
   }
-  context.arc(x, y, Math.min(6,blob.value), 0, Math.PI*2, true); 
+  context.arc(x, y, Math.max(2, sizeToRadius(blob.value * 0.3)), 0, Math.PI*2, true); 
   context.fill();
   context.closePath();
 }
@@ -42,7 +42,7 @@ function drawNode (context, node ) {
   // Draw body
   context.beginPath();
   context.fillStyle = "#4e342e";
-  context.arc(node.x, node.y, node.displaySize, 0, Math.PI*2, true); 
+  context.arc(node.x, node.y, sizeToRadius(node.displaySize), 0, Math.PI*2, true); 
   context.fill();
   context.closePath();
   
@@ -52,7 +52,7 @@ function drawNode (context, node ) {
   context.beginPath();
   // context.globalAlpha = 0.5;
   context.fillStyle = "#ffd54f";
-  context.arc(node.x, node.y, Math.min(node.displayEnergy, node.displaySize), 0, Math.PI, true); 
+  context.arc(node.x, node.y, Math.min(node.displayEnergy, sizeToRadius(node.displaySize)), 0, Math.PI, true); 
   context.fill();
   context.closePath();
   
@@ -60,7 +60,7 @@ function drawNode (context, node ) {
   context.beginPath();
   // context.globalAlpha = 0.5;
   context.fillStyle = "#1976d2 ";
-  context.arc(node.x, node.y, Math.min(node.displayWater, node.displaySize), Math.PI, Math.PI * 2, true); 
+  context.arc(node.x, node.y, Math.min(node.displayWater, sizeToRadius(node.displaySize)), Math.PI, Math.PI * 2, true); 
   context.fill();
   context.closePath();
   
@@ -76,7 +76,7 @@ function drawNode (context, node ) {
   context.beginPath();
   context.globalAlpha = 1;
   context.lineWidth = 3;
-  context.arc(node.x, node.y, node.displaySize, 0, Math.PI*2, true); 
+  context.arc(node.x, node.y, sizeToRadius(node.displaySize), 0, Math.PI*2, true); 
   context.stroke();
   context.closePath();
   

@@ -56,3 +56,7 @@ function radToDeg(rad) {
 function degToRad(deg) {
   return deg * 0.0174533;
 }
+
+function sizeToRadius(size) {
+  return Math.sqrt(size/Math.PI) * 7;
+}

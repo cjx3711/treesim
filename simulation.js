@@ -179,46 +179,6 @@ function diffuseBlobs() {
           }
         }
       }
-    
-       // Energy calculation
-      // var ratio = (link.energy / link.size) / (node.energy / node.size);
-      // if ( ratio < 0.9 ) { // Child has more energy
-      //   var blob = generateEnergyBlob(node, link);
-      //   var energy = Math.min(node.energy * 0.2, link.energyInv() * 0.3);
-      //   if ( energy > 0 ) {
-      //     blob.value = energy;
-      //     node.energy -= energy;
-      //     blobs.push(blob);
-      //   }
-      // } else if ( ratio > 1.2 ) { // Parent has more energy
-      //   var blob = generateEnergyBlob(link, node);
-      //   var energy = Math.min(node.energyInv() * 0.3, link.energy * 0.2);
-      //   if ( energy > 0 ) {
-      //     blob.value = energy;
-      //     link.energy -= energy;
-      //     blobs.push(blob);
-      //   }
-      // }
-      
-      // Water calculation
-      // var ratio = (link.water / link.size) / (node.water / node.size);
-      // if ( ratio < 0.9 ) { // Child has more water
-      //  var blob = generateWaterBlob(node, link);
-      //  var water = Math.min(node.water * 0.2, link.waterInv() * 0.3);
-      //  if ( water > 0 ) {
-      //    blob.value = water;
-      //    node.water -= water;
-      //    blobs.push(blob);
-      //  }
-      // } else if ( ratio > 1.2 ) { // Parent has more water
-      //   var blob = generateWaterBlob(link, node);
-      //   var water = Math.min(link.water * 0.2, node.waterInv() * 0.3);
-      //   if ( water > 0 ) {
-      //    blob.value = water;
-      //    link.water -= water;
-      //    blobs.push(blob);
-      //   }
-      // }
     }
   }
 }
