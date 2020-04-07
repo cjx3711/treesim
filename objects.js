@@ -17,6 +17,8 @@ function generateNode () {
     y: Math.random() * canvas.height, // Position
     vX: 0, // Velocity
     vY: 0, // Velocity
+    fX: 0,
+    fY: 0,
     setParent: function(parent) {
       if ( parent != null ) {
         node.links[0] = parent; // First link is always parent

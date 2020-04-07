@@ -64,7 +64,13 @@ var App = {
     // Spread nodes out
     for ( i in nodes ) {
       node = nodes[i];
-      spreadNode(node, App._delta);
+      spreadNode(node);
+    }
+
+    for ( let i in nodes ) {
+      for ( let j in nodes ) {
+        spreadNonRelatedNodes(nodes[i], nodes[j]);
+      }
     }
     
     // Blob diffusion logic

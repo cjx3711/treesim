@@ -60,39 +60,58 @@ function updateNode ( node, delta ) {
   node.displaySize += (node.size - node.displaySize) * delta;
   
   // Update movement
+  node.vX += node.fX * delta / node.size;
+  node.vY += node.fY * delta / node.size;
+
   node.x += node.vX * delta;
   node.y += node.vY * delta;
+
+  node.fX = 0;
+  node.fY = 0;
   
-  // Friction
-  if ( Math.abs(node.vX) < 0.01 ) {
-    node.vX = 0;
-  } else {
-    node.vX -= (node.vX > 0 ? 1 : -1) * delta * 20;
-  }
-  if ( Math.abs(node.vY) < 0.01 ) {
-    node.vY = 0;
-  } else {
-    node.vY -= (node.vY > 0 ? 1 : -1) * delta * 20;
-  }
+  // // // Friction
+  // if ( Math.abs(node.vX) < 0.01 ) {
+  //   node.vX = 0;
+  // } else {
+  //   node.vX -= (node.vX > 0 ? 1 : -1) * delta * 20;
+  // }
+  // if ( Math.abs(node.vY) < 0.01 ) {
+  //   node.vY = 0;
+  // } else {
+  //   node.vY -= (node.vY > 0 ? 1 : -1) * delta * 20;
+  // }
+
+  node.fX -= node.vX * 10;
+  node.fY -= node.vY * 10;
 }
 
-function spreadNode(node, delta) {
+function spreadNode(node) {
   for ( var l = 0; l < node.links.length; l++ ) {
     link = node.links[l];
     if ( link == null ) continue;
     var thickness = Math.min(node.size, link.size);
-    var desiredDistance = thickness * 5;
+    var desiredDistance = thickness * 5 + 10;
     var currentDist = dist(node, link);
     var distDelta = desiredDistance - currentDist;
-    var pullPower = 20;
-    var weightRatio = node.size / link.size;
+    var pullPower = 50;
     var dir = cartToPol(link.x - node.x, link.y - node.y).dir;
-    var vel = polToCart(dir, unit(distDelta) * pullPower * weightRatio);
+    var f = polToCart(dir, distDelta * pullPower);
     // Move the links
-    link.vX += vel.x * delta;
-    link.vY += vel.y * delta;
+    link.fX += f.x; // / node.size;
+    link.fY += f.y; // / node.size;
   }
 }
+
+function spreadNonRelatedNodes(node1, node2) {
+  var dX = node2.x - node1.x
+  var dY = node2.y - node1.y
+  var math = Math.pow(dX * dX + dY * dY, 1.5)
+  if ( math > 1 ) {
+    node1.fX -= dX / math * 500000
+    node1.fY -= dY / math * 500000
+  }
+}
+
 /**
  * Logic to decide where to send the energy
  */
