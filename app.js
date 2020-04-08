@@ -1,5 +1,9 @@
 var canvas = document.getElementById("main");
 var context = canvas.getContext("2d");
+var cursorPos = {x: 0, y: 0}
+var prevCursorDown = false;
+var cursorDown = false;
+var draggingNode = null;
 
 window.onresize = function(event) {
     canvas.width = window.innerWidth;
@@ -7,8 +11,33 @@ window.onresize = function(event) {
     console.log(canvas.width + " " + canvas.height);
     App.stop();
 };
+
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight * 0.8;
+
+function getMousePos(canvas, evt) {
+  var rect = canvas.getBoundingClientRect(), // abs. size of element
+  scaleX = canvas.width / rect.width,    // relationship bitmap vs. element for X
+  scaleY = canvas.height / rect.height;  // relationship bitmap vs. element for Y
+
+  return {
+    x: (evt.clientX - rect.left) * scaleX,   // scale mouse coordinates after they have
+    y: (evt.clientY - rect.top) * scaleY     // been adjusted to be relative to element
+  }
+}
+
+canvas.addEventListener('mousemove', function(evt) {
+  cursorPos = getMousePos(canvas, evt);
+}, false);
+
+canvas.addEventListener('mousedown', function(evt) {
+  cursorDown = true;
+}, false);
+
+canvas.addEventListener('mouseup', function(evt) {
+  cursorDown = false;
+}, false);
 
 var date = new Date();
 var sendBlob = 0;
@@ -48,13 +77,50 @@ var App = {
     App._actualFPS = App._actualFPS * 0.7 +  (1 / App._delta) * 0.3;
 
     sendBlob += App._delta;
+
+    
+    if (cursorDown && !prevCursorDown) { // Clicked
+      for (i in nodes) {
+        node = nodes[i];
+        if (distSq(cursorPos, node.getPos()) < node.size * node.size ) {
+          node.dragging = true;
+          draggingNode = node;
+        }
+      }
+    } else if (!cursorDown && prevCursorDown) { // Released
+      if (draggingNode) {
+        draggingNode.fX = 0;
+        draggingNode.fY = 0;
+        draggingNode.vX = 0;
+        draggingNode.vY = 0;
+        draggingNode.dragging = false;
+        draggingNode = null;
+      }
+    }
+    
+    // Interact nodes
+    for (i in nodes) {
+      node = nodes[i];
+      if (distSq(cursorPos, node.getPos()) < node.size * node.size ) {
+        node.mouseOver = true;
+      } else {
+        node.mouseOver = false;
+      }
+    }
+
+    if ( draggingNode ) {
+      draggingNode.x = cursorPos.x;
+      draggingNode.y = cursorPos.y;
+    }
+
+  
     
     // Update nodes
     for ( i in nodes ) {
       node = nodes[i];
       updateNode(node, App._delta);
     }
-  
+    
     // Update blobs
     for ( i in blobs ) {
       var blob = blobs[i];
@@ -112,6 +178,7 @@ var App = {
 
     
     App._prevTime = App._currTime;
+    prevCursorDown = cursorDown;
   },
 
   draw: function() {
@@ -134,6 +201,9 @@ var App = {
       drawBlob( context, blob );
     }
     
+
+    context.fillStyle = "#000000";
+    context.fillRect (cursorPos.x, cursorPos.y, 4, 4);
 
     context.globalAlpha=0.6;
     context.fillStyle="#DDDDDD";
@@ -162,12 +232,12 @@ function startSimulation() {
   }
   
   // Create leaf nodes
-  for ( var i = 0; i < 1; i++) {
+  for ( var i = 0; i < 2; i++) {
     addEnergy();
   }
   
   // Create root nodes
-  for ( var i = 0; i < 1; i++) {
+  for ( var i = 0; i < 2; i++) {
     addWater();
   }
   

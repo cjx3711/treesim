@@ -72,10 +72,15 @@ function drawNode (context, node ) {
   } else if ( node.type == 'root' ) {
     context.strokeStyle = "#1976d2";
   }
+  if ( node.mouseOver ) {
+    context.globalAlpha = 1;
+    context.lineWidth = 6;
+  } else {
+    context.globalAlpha = 0.7;
+    context.lineWidth = 3;
+  }
   
   context.beginPath();
-  context.globalAlpha = 1;
-  context.lineWidth = 3;
   context.arc(node.x, node.y, sizeToRadius(node.displaySize), 0, Math.PI*2, true); 
   context.stroke();
   context.closePath();
