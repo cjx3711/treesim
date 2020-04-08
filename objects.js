@@ -4,6 +4,8 @@ function generateNode () {
   var node = {
     id: id++,
     dead : false,
+    mouseOver: false,
+    dragging: false,
     opacity: 1,
     type: null,
     links: [null], // Stores list of nodes. 
@@ -17,8 +19,11 @@ function generateNode () {
     y: Math.random() * canvas.height, // Position
     vX: 0, // Velocity
     vY: 0, // Velocity
-    fX: 0,
-    fY: 0,
+    fX: 0, // Force
+    fY: 0, // Force
+    getPos: function() {
+      return {x: node.x, y: node.y };
+    },
     setParent: function(parent) {
       if ( parent != null ) {
         node.links[0] = parent; // First link is always parent
@@ -44,6 +49,11 @@ function generateNode () {
     },
     waterInv: function() {
       return node.size - node.water;
+    },
+    kill: function() {
+      node.dead = true;
+      node.energy = 0;
+      node.water = 0;
     },
     spawn: function() { // Spawns a new child
       var rand = Math.random();

@@ -31,15 +31,32 @@
 		<button onclick="resumeSimulation();">Resume</button>
 		<button onclick="stopSimulation();">Stop</button>
 		<span> Controls: </span>
+		<button onclick="changeCursorMode('branch');">Node (A)</button>
+		<button onclick="changeCursorMode('root');">Root (S)</button>
+		<button onclick="changeCursorMode('leaf');">Leaf (D)</button>
+		<button onclick="changeCursorMode('kill');">Kill (X)</button>
+		<button onclick="changeCursorMode('normal');">Cancel (C)</button>
+		<span> Random: </span>
 		<button onclick="addNode();">Node</button>
 		<button onclick="addWater();">Root</button>
 		<button onclick="addEnergy();">Leaf</button>
-		
 		<button onclick="killNode();">Kill</button>
 		<br/>
 		<script>
 			var nodes = [];
 			var blobs = [];
+			var cursorMode = 'normal';
+			document.addEventListener('keydown', logKey);
+			function logKey(e) {
+				console.log(e.code);
+				switch (e.code) {
+					case 'KeyA': changeCursorMode('branch'); break;
+					case 'KeyS': changeCursorMode('root'); break;
+					case 'KeyD': changeCursorMode('leaf'); break;
+					case 'KeyX': changeCursorMode('kill'); break;
+					case 'KeyC': changeCursorMode('normal'); break;
+				}
+			}
 		</script>
 		
 		<script src="util.js"></script>

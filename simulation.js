@@ -60,29 +60,20 @@ function updateNode ( node, delta ) {
   node.displaySize += (node.size - node.displaySize) * delta;
   
   // Update movement
-  node.vX += node.fX * delta / node.size;
-  node.vY += node.fY * delta / node.size;
-
-  node.x += node.vX * delta;
-  node.y += node.vY * delta;
-
-  node.fX = 0;
-  node.fY = 0;
+  if (!node.dragging) {
+    node.vX += node.fX * delta / node.size;
+    node.vY += node.fY * delta / node.size;
   
-  // // // Friction
-  // if ( Math.abs(node.vX) < 0.01 ) {
-  //   node.vX = 0;
-  // } else {
-  //   node.vX -= (node.vX > 0 ? 1 : -1) * delta * 20;
-  // }
-  // if ( Math.abs(node.vY) < 0.01 ) {
-  //   node.vY = 0;
-  // } else {
-  //   node.vY -= (node.vY > 0 ? 1 : -1) * delta * 20;
-  // }
+    node.x += node.vX * delta;
+    node.y += node.vY * delta;
 
-  node.fX -= node.vX * 10;
-  node.fY -= node.vY * 10;
+    node.fX = 0;
+    node.fY = 0;
+    
+    // Friction
+    node.fX -= node.vX * 20;
+    node.fY -= node.vY * 20;
+  }
 }
 
 function spreadNode(node) {
@@ -90,10 +81,10 @@ function spreadNode(node) {
     link = node.links[l];
     if ( link == null ) continue;
     var thickness = Math.min(node.size, link.size);
-    var desiredDistance = thickness * 5 + 10;
+    var desiredDistance = thickness * 4 + 12;
     var currentDist = dist(node, link);
     var distDelta = desiredDistance - currentDist;
-    var pullPower = 50;
+    var pullPower = 70;
     var dir = cartToPol(link.x - node.x, link.y - node.y).dir;
     var f = polToCart(dir, distDelta * pullPower);
     // Move the links

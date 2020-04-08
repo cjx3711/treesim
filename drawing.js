@@ -20,7 +20,6 @@ function drawLinks(context, node ) {
     link = node.links[l];
     var opacity = Math.min(node.opacity, link.opacity);
     context.globalAlpha = opacity;
-    context.beginPath();
     context.moveTo(node.x,node.y);
     context.lineTo(link.x,link.y);
     var thickness = Math.min(node.size, link.size);
@@ -59,7 +58,7 @@ function drawNode (context, node ) {
   // Draw water
   context.beginPath();
   // context.globalAlpha = 0.5;
-  context.fillStyle = "#1976d2 ";
+  context.fillStyle = "#1976d2";
   context.arc(node.x, node.y, Math.min(node.displayWater, sizeToRadius(node.displaySize)), Math.PI, Math.PI * 2, true); 
   context.fill();
   context.closePath();

@@ -4,6 +4,7 @@ var cursorPos = {x: 0, y: 0}
 var prevCursorDown = false;
 var cursorDown = false;
 var draggingNode = null;
+var placementParent = null; // Used when placing a node down.
 
 window.onresize = function(event) {
     canvas.width = window.innerWidth;
@@ -80,22 +81,38 @@ var App = {
 
     
     if (cursorDown && !prevCursorDown) { // Clicked
-      for (i in nodes) {
-        node = nodes[i];
-        if (distSq(cursorPos, node.getPos()) < node.size * node.size ) {
-          node.dragging = true;
-          draggingNode = node;
+      if (cursorMode == 'normal') {
+        for (i in nodes) {
+          node = nodes[i];
+          if (distSq(cursorPos, node.getPos()) < node.size * node.size ) {
+            node.dragging = true;
+            draggingNode = node;
+          }
+        }
+      } else if (['leaf', 'branch', 'root'].includes(cursorMode)) {
+        addNodeAt(placementParent, cursorPos.x, cursorPos.y, cursorMode);
+      } else if (cursorMode == 'kill') {
+        for (i in nodes) {
+          node = nodes[i];
+          if (distSq(cursorPos, node.getPos()) < node.size * node.size ) {
+            node.kill();
+          }
         }
       }
     } else if (!cursorDown && prevCursorDown) { // Released
-      if (draggingNode) {
-        draggingNode.fX = 0;
-        draggingNode.fY = 0;
-        draggingNode.vX = 0;
-        draggingNode.vY = 0;
-        draggingNode.dragging = false;
-        draggingNode = null;
+      if (cursorMode == 'normal') {
+        if (draggingNode) {
+          draggingNode.fX = 0;
+          draggingNode.fY = 0;
+          draggingNode.vX = 0;
+          draggingNode.vY = 0;
+          draggingNode.dragging = false;
+          draggingNode = null;
+        }
+      } else {
+        cursorMode = 'normal';
       }
+      
     }
     
     // Interact nodes
@@ -113,8 +130,20 @@ var App = {
       draggingNode.y = cursorPos.y;
     }
 
+    placementParent = null;
+    if (['leaf', 'branch', 'root'].includes(cursorMode)) {
+      // Link to closest node
+      var minDist = 9999999999;
+      for (i in nodes) {
+        node = nodes[i];
+        var dSq = distSq(cursorPos, node.getPos());
+        if (dSq < minDist) {
+          minDist = dSq;
+          if (dSq < 100 * 100) placementParent = node; // Only if close enough
+        }
+      }
+    }
   
-    
     // Update nodes
     for ( i in nodes ) {
       node = nodes[i];
@@ -201,9 +230,61 @@ var App = {
       drawBlob( context, blob );
     }
     
+    // Draw placement link
+    if ( placementParent ) {
+      context.globalAlpha = 0.5;
+      context.lineWidth = 2;
+      context.strokeStyle = "#4e342e";
+      context.moveTo(placementParent.x,placementParent.y);
+      context.lineTo(cursorPos.x,cursorPos.y);
+      context.stroke();
+    }
 
-    context.fillStyle = "#000000";
-    context.fillRect (cursorPos.x, cursorPos.y, 4, 4);
+    // Draw cursor
+    switch (cursorMode) {
+      case 'branch':
+        context.strokeStyle = "#795548";
+        context.globalAlpha = 0.4;
+        context.lineWidth = 3;
+        context.beginPath();
+        context.arc(cursorPos.x, cursorPos.y, 30, 0, Math.PI*2, true); 
+        context.stroke();
+        context.closePath();
+      break;
+      case 'leaf':
+        context.strokeStyle = "#43a047";
+        context.globalAlpha = 0.4;
+        context.lineWidth = 3;
+        context.beginPath();
+        context.arc(cursorPos.x, cursorPos.y, 30, 0, Math.PI*2, true); 
+        context.stroke();
+        context.closePath();
+      break;
+      case 'root':
+        context.strokeStyle = "#1976d2";
+        context.globalAlpha = 0.4;
+        context.lineWidth = 3;
+        context.beginPath();
+        context.arc(cursorPos.x, cursorPos.y, 30, 0, Math.PI*2, true); 
+        context.stroke();
+        context.closePath();
+      break;
+      case 'kill':
+        context.strokeStyle = "#9919d2";
+        context.globalAlpha = 0.6;
+        context.lineWidth = 6;
+        context.moveTo(cursorPos.x - 10,cursorPos.y - 10);
+        context.lineTo(cursorPos.x + 10,cursorPos.y + 10);
+        context.moveTo(cursorPos.x + 10,cursorPos.y - 10);
+        context.lineTo(cursorPos.x - 10,cursorPos.y + 10);
+        context.stroke();
+      break;
+      default:
+        context.globalAlpha = 1;
+        context.fillStyle = "#000000";
+        context.fillRect (cursorPos.x, cursorPos.y, 4, 4);
+      break;
+    }
 
     context.globalAlpha=0.6;
     context.fillStyle="#DDDDDD";
@@ -221,7 +302,7 @@ function startSimulation() {
   nodes.length = 0;
   blobs.length = 0;
   
-  var root = generateNode(null);
+  var root = generateNode();
   root.x = canvas.width / 2 - (canvas.width / 6) + Math.random() * (canvas.width / 3);
   root.y = canvas.height / 2 - (canvas.height / 6) + Math.random() * (canvas.height / 3);
   root.size += Math.random() * 5 + 4;
@@ -252,26 +333,40 @@ function stopSimulation() {
   App.stop();
 }
 
+function changeCursorMode(mode) {
+  cursorMode = mode;
+}
+
 function killNode() {
   var node = nodes[Math.floor(Math.random() * nodes.length)];
-  node.dead = true;
-  node.energy = 0;
-  node.water = 0;
+  node.kill();
 }
 
 function addRoot() {
-  var root = generateNode(null);
+  var root = generateNode();
   root.x = canvas.width / 2 - (canvas.width / 6) + Math.random() * (canvas.width / 3);
   root.y = canvas.height / 2 - (canvas.height / 6) + Math.random() * (canvas.height / 3);
   nodes.push(root);
 }
-function addNode(parent) {
+
+function addNodeAt(parent, x, y, type = null) {
+  var node = generateNode();
+  node.type = type;
+  node.x = x;
+  node.y = y;
+  node.setParent(parent);
+  nodes.push(node);
+  return node;
+}
+
+function addNode(parent, type = null) {
   var tries = 3;
   var distance = parent == undefined ? (Math.random() * 80 + 40) : (Math.random() * 15 + 30); // If it's a spawn, spawn closer
   while(tries > 0) {
     if ( nodes.length == 0 ) addRoot();
     if ( parent == undefined ) parent = nodes[Math.floor(Math.random() * nodes.length)];
     var node = generateNode();
+    node.type = type;
     var coord = polToCart(Math.random() * 360, distance);
     node.x = coord.x + parent.x;
     node.y = coord.y + parent.y;
@@ -286,43 +381,11 @@ function addNode(parent) {
 }
 
 function addWater(parent) {
-  var tries = 3;
-  var distance = parent == undefined ? (Math.random() * 80 + 40) : (Math.random() * 15 + 30); // If it's a spawn, spawn closer
-  while(tries > 0) {
-    if ( nodes.length == 0 ) addRoot();
-    if ( parent == undefined ) parent = nodes[Math.floor(Math.random() * nodes.length)];
-    var node = generateNode();
-    node.type = 'root';
-    var coord = polToCart(Math.random() * 360, distance );
-    node.x = coord.x + parent.x;
-    node.y = coord.y + parent.y;
-    if ( !collideAll(node, 20) ) {
-      node.setParent(parent);
-      nodes.push(node);
-      return node;
-    }
-    tries--;
-  }
-  return null;
+  return addNode(parent, 'root');
 }
 
 function addEnergy(parent) {
-  var tries = 3;
-  var distance = parent == undefined ? (Math.random() * 80 + 40) : (Math.random() * 15 + 30); // If it's a spawn, spawn closer
-  while(tries > 0) {
-    if ( nodes.length == 0 ) addRoot();
-    if ( parent == undefined ) parent = nodes[Math.floor(Math.random() * nodes.length)];
-    var node = generateNode();
-    node.type = 'leaf';
-    var coord = polToCart(Math.random() * 360, distance);
-    node.x = coord.x + parent.x;
-    node.y = coord.y + parent.y;
-    if ( !collideAll(node, 20) ) {
-      node.setParent(parent);
-      nodes.push(node);
-      return node;
-    }
-    tries--;
-  }
-  return null;
+  return addNode(parent, 'leaf');
 }
+
+startSimulation();
