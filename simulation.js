@@ -81,7 +81,7 @@ function spreadNode(node) {
     link = node.links[l];
     if ( link == null ) continue;
     var thickness = Math.min(node.size, link.size);
-    var desiredDistance = thickness * 4 + 12;
+    var desiredDistance = thickness * 6 + 12;
     var currentDist = dist(node, link);
     var distDelta = desiredDistance - currentDist;
     var pullPower = 70;
@@ -97,9 +97,9 @@ function spreadNonRelatedNodes(node1, node2) {
   var dX = node2.x - node1.x
   var dY = node2.y - node1.y
   var math = Math.pow(dX * dX + dY * dY, 1.5)
-  if ( math > 1 ) {
-    node1.fX -= dX / math * 500000
-    node1.fY -= dY / math * 500000
+  if ( math > 1 ) { // Spread by the inverse square law
+    node1.fX -= dX / math * 700000
+    node1.fY -= dY / math * 700000
   }
 }
 

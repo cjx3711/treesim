@@ -235,9 +235,12 @@ var App = {
       context.globalAlpha = 0.5;
       context.lineWidth = 2;
       context.strokeStyle = "#4e342e";
+      context.beginPath();
       context.moveTo(placementParent.x,placementParent.y);
       context.lineTo(cursorPos.x,cursorPos.y);
       context.stroke();
+      context.closePath();
+
     }
 
     // Draw cursor
@@ -273,11 +276,13 @@ var App = {
         context.strokeStyle = "#9919d2";
         context.globalAlpha = 0.6;
         context.lineWidth = 6;
+        context.beginPath();
         context.moveTo(cursorPos.x - 10,cursorPos.y - 10);
         context.lineTo(cursorPos.x + 10,cursorPos.y + 10);
         context.moveTo(cursorPos.x + 10,cursorPos.y - 10);
         context.lineTo(cursorPos.x - 10,cursorPos.y + 10);
         context.stroke();
+        context.closePath();
       break;
       default:
         context.globalAlpha = 1;

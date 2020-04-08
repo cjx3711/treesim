@@ -7,7 +7,7 @@ function generateNode () {
     mouseOver: false,
     dragging: false,
     opacity: 1,
-    type: null,
+    type: 'branch',
     links: [null], // Stores list of nodes. 
     water: 0, // Actual water level
     energy: 0, // Actual energy level

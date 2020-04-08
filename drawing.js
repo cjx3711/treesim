@@ -20,12 +20,14 @@ function drawLinks(context, node ) {
     link = node.links[l];
     var opacity = Math.min(node.opacity, link.opacity);
     context.globalAlpha = opacity;
+    var thickness = Math.min(node.size, link.size);
+    context.lineWidth = thickness * 0.85;
+    context.strokeStyle = "#666666";
+    context.beginPath();
     context.moveTo(node.x,node.y);
     context.lineTo(link.x,link.y);
-    var thickness = Math.min(node.size, link.size);
-    context.lineWidth = thickness;
-    context.strokeStyle = "#4e342e";
     context.stroke();
+    context.closePath();
   }
   // if ( node.links[0] != null ) {
   //   context.beginPath();
@@ -38,18 +40,47 @@ function drawLinks(context, node ) {
 }
 function drawNode (context, node ) {
   context.globalAlpha = node.opacity;
+
+
+  if ( node.type == null || node.type == 'branch' ) {
+    // context.strokeStyle = "#795548";
+    // context.fillStyle = "#4e342e";
+    context.strokeStyle = "#666666";
+    context.fillStyle = "#333333";
+  } else if ( node.type == 'leaf' ) {
+    context.strokeStyle = "#43a047";
+    context.fillStyle = "#43a047";
+  } else if ( node.type == 'root' ) {
+    context.strokeStyle = "#956858";
+    context.fillStyle = "#6e544e";
+  }
+
   // Draw body
   context.beginPath();
-  context.fillStyle = "#4e342e";
-  context.arc(node.x, node.y, sizeToRadius(node.displaySize), 0, Math.PI*2, true); 
+  context.arc(node.x, node.y, sizeToRadius(node.displaySize) + 5, 0, Math.PI*2, true); 
   context.fill();
   context.closePath();
+
+  // Draw outline
+  if ( node.mouseOver ) {
+    context.globalAlpha = 1;
+    context.lineWidth = 8;
+  } else {
+    context.globalAlpha = 1;
+    context.lineWidth = 5;
+  }
   
+  context.beginPath();
+  context.arc(node.x, node.y, sizeToRadius(node.displaySize) + 5, 0, Math.PI*2, true); 
+  context.stroke();
+  context.closePath();
+
   context.lineWidth = 2;
+
   
   // Draw energy
   context.beginPath();
-  // context.globalAlpha = 0.5;
+  // context.globalAlpha = 0.8;
   context.fillStyle = "#ffd54f";
   context.arc(node.x, node.y, Math.min(node.displayEnergy, sizeToRadius(node.displaySize)), 0, Math.PI, true); 
   context.fill();
@@ -57,31 +88,10 @@ function drawNode (context, node ) {
   
   // Draw water
   context.beginPath();
-  // context.globalAlpha = 0.5;
+  // context.globalAlpha = 0.8;
   context.fillStyle = "#1976d2";
   context.arc(node.x, node.y, Math.min(node.displayWater, sizeToRadius(node.displaySize)), Math.PI, Math.PI * 2, true); 
   context.fill();
-  context.closePath();
-  
-  // Draw outline
-  if ( node.type == null ) {
-    context.strokeStyle = "#795548";
-  } else if ( node.type == 'leaf' ) {
-    context.strokeStyle = "#43a047";
-  } else if ( node.type == 'root' ) {
-    context.strokeStyle = "#1976d2";
-  }
-  if ( node.mouseOver ) {
-    context.globalAlpha = 1;
-    context.lineWidth = 6;
-  } else {
-    context.globalAlpha = 0.7;
-    context.lineWidth = 3;
-  }
-  
-  context.beginPath();
-  context.arc(node.x, node.y, sizeToRadius(node.displaySize), 0, Math.PI*2, true); 
-  context.stroke();
   context.closePath();
   
   // context.fillStyle = "#FF0000";
