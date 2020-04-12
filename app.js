@@ -8,14 +8,14 @@ var placementParent = null; // Used when placing a node down.
 
 window.onresize = function(event) {
     canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight * 0.75;
+    canvas.height = window.innerHeight - 40;
     console.log(canvas.width + " " + canvas.height);
     App.stop();
 };
 
 
 canvas.width = window.innerWidth;
-canvas.height = window.innerHeight * 0.8;
+canvas.height = window.innerHeight - 40;
 
 function getMousePos(canvas, evt) {
   var rect = canvas.getBoundingClientRect(), // abs. size of element
@@ -75,6 +75,7 @@ var App = {
   update: function() {
     App._currTime = Date.now(); //window.performance.now();
     App._delta = (App._currTime - App._prevTime)/1000;
+    // Running Average FPS count
     App._actualFPS = App._actualFPS * 0.7 +  (1 / App._delta) * 0.3;
 
     sendBlob += App._delta;
@@ -202,7 +203,7 @@ var App = {
         i++;
       }
     }
-     
+    
     
 
     
@@ -231,65 +232,11 @@ var App = {
     }
     
     // Draw placement link
-    if ( placementParent ) {
-      context.globalAlpha = 0.5;
-      context.lineWidth = 2;
-      context.strokeStyle = "#4e342e";
-      context.beginPath();
-      context.moveTo(placementParent.x,placementParent.y);
-      context.lineTo(cursorPos.x,cursorPos.y);
-      context.stroke();
-      context.closePath();
+    drawPlacementLink(context, cursorPos, placementParent)
+    drawCursor(context, cursorPos, cursorMode);
+  
+    drawMapPos(context, mapPos);
 
-    }
-
-    // Draw cursor
-    switch (cursorMode) {
-      case 'branch':
-        context.strokeStyle = "#795548";
-        context.globalAlpha = 0.4;
-        context.lineWidth = 3;
-        context.beginPath();
-        context.arc(cursorPos.x, cursorPos.y, 30, 0, Math.PI*2, true); 
-        context.stroke();
-        context.closePath();
-      break;
-      case 'leaf':
-        context.strokeStyle = "#43a047";
-        context.globalAlpha = 0.4;
-        context.lineWidth = 3;
-        context.beginPath();
-        context.arc(cursorPos.x, cursorPos.y, 30, 0, Math.PI*2, true); 
-        context.stroke();
-        context.closePath();
-      break;
-      case 'root':
-        context.strokeStyle = "#1976d2";
-        context.globalAlpha = 0.4;
-        context.lineWidth = 3;
-        context.beginPath();
-        context.arc(cursorPos.x, cursorPos.y, 30, 0, Math.PI*2, true); 
-        context.stroke();
-        context.closePath();
-      break;
-      case 'kill':
-        context.strokeStyle = "#9919d2";
-        context.globalAlpha = 0.6;
-        context.lineWidth = 6;
-        context.beginPath();
-        context.moveTo(cursorPos.x - 10,cursorPos.y - 10);
-        context.lineTo(cursorPos.x + 10,cursorPos.y + 10);
-        context.moveTo(cursorPos.x + 10,cursorPos.y - 10);
-        context.lineTo(cursorPos.x - 10,cursorPos.y + 10);
-        context.stroke();
-        context.closePath();
-      break;
-      default:
-        context.globalAlpha = 1;
-        context.fillStyle = "#000000";
-        context.fillRect (cursorPos.x, cursorPos.y, 4, 4);
-      break;
-    }
 
     context.globalAlpha=0.6;
     context.fillStyle="#DDDDDD";

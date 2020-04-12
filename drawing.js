@@ -99,3 +99,80 @@ function drawNode (context, node ) {
   // context.fillText ( node.id+"" ,node.x , node.y);
   
 }
+
+function drawPlacementLink(context, cursorPos, placementParent) {
+  // Draws the line to indicate which node it will be placed on.
+  if ( placementParent ) {
+    context.globalAlpha = 0.5;
+    context.lineWidth = 2;
+    context.strokeStyle = "#4e342e";
+    context.beginPath();
+    context.moveTo(placementParent.x,placementParent.y);
+    context.lineTo(cursorPos.x,cursorPos.y);
+    context.stroke();
+    context.closePath();
+  }
+}
+
+function drawCursor(context, cursorPos, cursorMode) {
+  // Draws the cursor depending on the cursor mode.
+  // Draw cursor
+  switch (cursorMode) {
+    case 'branch':
+      context.strokeStyle = "#795548";
+      context.globalAlpha = 0.4;
+      context.lineWidth = 3;
+      context.beginPath();
+      context.arc(cursorPos.x, cursorPos.y, 30, 0, Math.PI*2, true); 
+      context.stroke();
+      context.closePath();
+    break;
+    case 'leaf':
+      context.strokeStyle = "#43a047";
+      context.globalAlpha = 0.4;
+      context.lineWidth = 3;
+      context.beginPath();
+      context.arc(cursorPos.x, cursorPos.y, 30, 0, Math.PI*2, true); 
+      context.stroke();
+      context.closePath();
+    break;
+    case 'root':
+      context.strokeStyle = "#1976d2";
+      context.globalAlpha = 0.4;
+      context.lineWidth = 3;
+      context.beginPath();
+      context.arc(cursorPos.x, cursorPos.y, 30, 0, Math.PI*2, true); 
+      context.stroke();
+      context.closePath();
+    break;
+    case 'kill':
+      context.strokeStyle = "#9919d2";
+      context.globalAlpha = 0.6;
+      context.lineWidth = 6;
+      context.beginPath();
+      context.moveTo(cursorPos.x - 10,cursorPos.y - 10);
+      context.lineTo(cursorPos.x + 10,cursorPos.y + 10);
+      context.moveTo(cursorPos.x + 10,cursorPos.y - 10);
+      context.lineTo(cursorPos.x - 10,cursorPos.y + 10);
+      context.stroke();
+      context.closePath();
+    break;
+    default:
+      context.globalAlpha = 1;
+      context.fillStyle = "#000000";
+      context.fillRect (cursorPos.x, cursorPos.y, 4, 4);
+    break;
+  }
+}
+
+function drawMapPos(context, mapPos) {
+  context.globalAlpha=0.6;
+  context.fillStyle="#DDDDDD";
+  context.font="10px Arial";
+  context.fillRect(0,15, 60, 15);
+  context.globalAlpha=1;
+  context.fillStyle="#000000";
+  context.font="10px Arial";
+  context.fillText ( `[${mapPos.x}, ${mapPos.y}]`, 10, 25);
+  context.font="15px Arial";
+}

@@ -11,7 +11,7 @@
 			canvas {
 				border: solid;
 				width: 100%;
-				height: 75%;
+				height: calc(100% - 40px);
 				background-color: #FFFFFF;
 				margin-bottom: 10px;
 			}
@@ -45,6 +45,7 @@
 		<script>
 			var nodes = [];
 			var blobs = [];
+			var mapPos = {x: 0, y: 0};
 			var cursorMode = 'normal';
 			document.addEventListener('keydown', logKey);
 			function logKey(e) {
