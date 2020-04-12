@@ -1,18 +1,19 @@
 var canvas = document.getElementById("main");
 var context = canvas.getContext("2d");
-var cursorPos = {x: 0, y: 0}
+var cursorPos = {x: 0, y: 0};
+let cursorPosInGame;
 var prevCursorDown = false;
 var cursorDown = false;
 var draggingNode = null;
+var hoverNode = null;
 var placementParent = null; // Used when placing a node down.
 
 window.onresize = function(event) {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 40;
-    console.log(canvas.width + " " + canvas.height);
-    App.stop();
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight - 40;
+  console.log(canvas.width + " " + canvas.height);
+  App.stop();
 };
-
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight - 40;
@@ -28,7 +29,23 @@ function getMousePos(canvas, evt) {
   }
 }
 
+
+function logKey(e) {
+  console.log(e.code);
+  switch (e.code) {
+    case 'KeyA': changeCursorMode('branch'); break;
+    case 'KeyS': changeCursorMode('root'); break;
+    case 'KeyD': changeCursorMode('leaf'); break;
+    case 'KeyX': changeCursorMode('kill'); break;
+    case 'KeyC': 
+    case 'Escape':
+    changeCursorMode('normal'); break;
+  }
+}
+document.addEventListener('keydown', logKey);
+
 canvas.addEventListener('mousemove', function(evt) {
+  // Set cursor to ingame cursor position
   cursorPos = getMousePos(canvas, evt);
 }, false);
 
@@ -58,7 +75,6 @@ var App = {
     }
     App._prevTime = App._currTime = Date.now();
 
-    
     this._intervalID = setInterval(this.run, 1000 / this.fps);
   },
   stop: function () {
@@ -66,7 +82,6 @@ var App = {
       clearInterval(this._intervalID);
       this._intervalID = null;
     }
-  
   },
   run: function() {
     App.update();
@@ -76,31 +91,47 @@ var App = {
     App._currTime = Date.now(); //window.performance.now();
     App._delta = (App._currTime - App._prevTime)/1000;
     // Running Average FPS count
-    App._actualFPS = App._actualFPS * 0.7 +  (1 / App._delta) * 0.3;
+    App._actualFPS = App._actualFPS * 0.5 +  (1 / App._delta) * 0.5;
 
     sendBlob += App._delta;
 
+    cursorPosInGame = { x : cursorPos.x + mapPos.x, y : cursorPos.y + mapPos.y}
+    // Interact nodes
+    hoverNode = null;
+    for (i in nodes) {
+      node = nodes[i];
+      if (distSq(cursorPosInGame, node.getPos()) < node.size * node.size ) {
+        node.mouseOver = true;
+        hoverNode = node;
+      } else {
+        node.mouseOver = false;
+      }
+    }
     
-    if (cursorDown && !prevCursorDown) { // Clicked
+    if (cursorDown && !prevCursorDown) { // Pressed
       if (cursorMode == 'normal') {
-        for (i in nodes) {
-          node = nodes[i];
-          if (distSq(cursorPos, node.getPos()) < node.size * node.size ) {
-            node.dragging = true;
-            draggingNode = node;
-          }
+        if ( hoverNode ) {
+          hoverNode.dragging = true;
+          draggingNode = hoverNode;
+        }
+        if ( !draggingNode ) {
+          // Start dragging the map
+          mapMouseDown = {...mapPos};
+          cursorDown = {...cursorPos};
         }
       } else if (['leaf', 'branch', 'root'].includes(cursorMode)) {
-        addNodeAt(placementParent, cursorPos.x, cursorPos.y, cursorMode);
+        addNodeAt(placementParent, cursorPosInGame.x, cursorPosInGame.y, cursorMode);
       } else if (cursorMode == 'kill') {
-        for (i in nodes) {
-          node = nodes[i];
-          if (distSq(cursorPos, node.getPos()) < node.size * node.size ) {
-            node.kill();
-          }
+        if ( hoverNode ) {
+          hoverNode.kill();
         }
       }
     } else if (!cursorDown && prevCursorDown) { // Released
+      if (mapMouseDown) {
+        // Map Drag Release
+        mapMouseDown = null;
+        cursorDown = null;
+      }
       if (cursorMode == 'normal') {
         if (draggingNode) {
           draggingNode.fX = 0;
@@ -113,22 +144,11 @@ var App = {
       } else {
         cursorMode = 'normal';
       }
-      
     }
     
-    // Interact nodes
-    for (i in nodes) {
-      node = nodes[i];
-      if (distSq(cursorPos, node.getPos()) < node.size * node.size ) {
-        node.mouseOver = true;
-      } else {
-        node.mouseOver = false;
-      }
-    }
-
     if ( draggingNode ) {
-      draggingNode.x = cursorPos.x;
-      draggingNode.y = cursorPos.y;
+      draggingNode.x = cursorPosInGame.x;
+      draggingNode.y = cursorPosInGame.y;
     }
 
     placementParent = null;
@@ -137,7 +157,7 @@ var App = {
       var minDist = 9999999999;
       for (i in nodes) {
         node = nodes[i];
-        var dSq = distSq(cursorPos, node.getPos());
+        var dSq = distSq(cursorPosInGame, node.getPos());
         if (dSq < minDist) {
           minDist = dSq;
           if (dSq < 100 * 100) placementParent = node; // Only if close enough
@@ -203,9 +223,12 @@ var App = {
         i++;
       }
     }
-    
-    
 
+    // Handle Map Drag
+    if (mapMouseDown) {
+      mapPos.x = cursorDown.x - cursorPos.x + mapMouseDown.x;
+      mapPos.y = cursorDown.y - cursorPos.y + mapMouseDown.y;
+    }
     
     App._prevTime = App._currTime;
     prevCursorDown = cursorDown;
@@ -214,27 +237,26 @@ var App = {
   draw: function() {
     var width = canvas.width;
     var height = canvas.height;
-    context.clearRect(0,0,width,height);
+    context.clearRect( 0, 0, width, height );
 
     for ( i in nodes ) {
       var node = nodes[i];
-      drawLinks( context, node );
+      drawLinks( context, node, mapPos );
     }
     
     for ( i in nodes ) {
       var node = nodes[i];
-      drawNode( context, node );
+      drawNode( context, node, mapPos );
     }
     
     for ( i in blobs ) {
       var blob = blobs[i];
-      drawBlob( context, blob );
+      drawBlob( context, blob, mapPos );
     }
     
     // Draw placement link
-    drawPlacementLink(context, cursorPos, placementParent)
-    drawCursor(context, cursorPos, cursorMode);
-  
+    drawPlacementLink(context, cursorPosInGame, placementParent, mapPos)
+    drawCursor(context, cursorPos, cursorMode, mapPos);
     drawMapPos(context, mapPos);
 
 

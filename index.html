@@ -46,18 +46,9 @@
 			var nodes = [];
 			var blobs = [];
 			var mapPos = {x: 0, y: 0};
+			var mapMouseDown = null;
+			var cursorDown = null;
 			var cursorMode = 'normal';
-			document.addEventListener('keydown', logKey);
-			function logKey(e) {
-				console.log(e.code);
-				switch (e.code) {
-					case 'KeyA': changeCursorMode('branch'); break;
-					case 'KeyS': changeCursorMode('root'); break;
-					case 'KeyD': changeCursorMode('leaf'); break;
-					case 'KeyX': changeCursorMode('kill'); break;
-					case 'KeyC': changeCursorMode('normal'); break;
-				}
-			}
 		</script>
 		
 		<script src="util.js"></script>
@@ -65,11 +56,5 @@
 		<script src="drawing.js"></script>
 		<script src="simulation.js"></script>
 		<script src="app.js"></script>
-
-		<script>
-		var x = 0;
-
-		
-		</script>
 	</body>
 </html>
